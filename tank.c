@@ -9,7 +9,7 @@ bool goforward(tank *tk)
         tk->x--;
         break;
     case RIGHT:
-        if (tk->x + 1 > MAP_HEIGHT - 3)
+        if (tk->x + 1 > MAP_WIDTH - 3)
             return false;
         tk->x++;
         break;
@@ -19,7 +19,7 @@ bool goforward(tank *tk)
         tk->y--;
         break;
     case DOWN:
-        if (tk->y + 1 > MAP_WIDTH - 3)
+        if (tk->y + 1 > MAP_HEIGHT - 3)
             return false;
         tk->y++;
         break;

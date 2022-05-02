@@ -19,7 +19,7 @@ static bool bullets_move(void)
         blt->x--;
         break;
     case RIGHT:
-        if (blt->x + 1 > MAP_HEIGHT - 2)
+        if (blt->x + 1 > MAP_WIDTH - 2)
             return false;
         blt->x++;
         break;
@@ -29,7 +29,7 @@ static bool bullets_move(void)
         blt->y--;
         break;
     case DOWN:
-        if (blt->y + 1 > MAP_WIDTH - 2)
+        if (blt->y + 1 > MAP_HEIGHT - 2)
             return false;
         blt->y++;
         break;
@@ -57,7 +57,7 @@ void *fire(void *arg)
         refresh_screen();
 
         pthread_mutex_unlock(&data->lock);
-        napms(100);
+        napms(12);
     }
 
     pthread_mutex_lock(&data->lock);

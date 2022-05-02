@@ -15,7 +15,7 @@
 #define MAX_BULLETS 100
 
 #define MAP_HEIGHT  32
-#define MAP_WIDTH   32
+#define MAP_WIDTH   36
 
 // direction
 typedef enum {
