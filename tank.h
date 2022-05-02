@@ -1,16 +1,17 @@
 #ifndef __TANK_H__
 #define __TANK_H__
 
-#define GAME_HEIGHT 40
-#define GAME_WIDTH 40
+#include <stdint.h>
 
-/// *** ui *** ///
-void init_screen(void);
+#include "macros.h"
 
-/// *** net *** ///
-void connect(void);
+typedef struct {
+    uint16_t x;
+    uint16_t y;
+    DIRECTION dir;
+} tank;
 
-/// *** game *** ///
-void start_game(void);
+void goforward(tank *);
+void turn(tank *, DIRECTION);
 
 #endif /*__TANK_H__*/

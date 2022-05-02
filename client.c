@@ -1,14 +1,21 @@
+#include <stdlib.h>
 #include <ncurses.h>
 
 #include "tank.h"
+#include "ui.h"
+#include "macros.h"
+#include "game.h"
 
 int main(int argc, char **argv)
 {
-    init_screen();
+    if (atexit(deinit_ui))
+        err_exit("atexit");
 
-    connect();
+    init_ui();
 
-    getch();
+    // connect();
+
+    start_game();
     endwin();
     return 0;
 }
