@@ -9,7 +9,6 @@
 extern map      *game_map;
 extern tank     *tanks[MAX_USERS];
 extern tank     my_tank;
-extern bullet   *bullets[MAX_BULLETS];
 
 void start_game(void);
 

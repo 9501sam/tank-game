@@ -9,6 +9,8 @@ typedef struct {
     DIRECTION dir;
 } bullet;
 
-void fire(bullet *);
+extern bullet   bullets[MAX_BULLETS];
+
+void *fire(void *);
 
 #endif /*__BULLET_H__*/

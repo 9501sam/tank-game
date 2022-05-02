@@ -18,11 +18,19 @@
 #define MAP_WIDTH   32
 
 // direction
-typedef uint8_t DIRECTION;
+typedef enum {
+    LEFT,
+    RIGHT,
+    UP,
+    DOWN,
+    NUM_DIR,
+} DIRECTION;
 
-#define LEFT    (uint8_t) 0x1
-#define RIGHT   (uint8_t) 0x2
-#define UP      (uint8_t) 0x4
-#define DOWN    (uint8_t) 0x8
+#define TANK_SIZE   (uint8_t) 3
+
+struct thread_data {
+    pthread_mutex_t lock;
+    pthread_t thread_id;
+};
 
 #endif /*__MACROS_H__*/

@@ -1,18 +1,38 @@
 #include "tank.h"
 
-void goforward(tank *tk)
+bool goforward(tank *tk)
 {
-    if (tk->dir == LEFT)
+    switch (tk->dir) {
+    case LEFT:
+        if (tk->x - 1 < 2)
+            return false;
         tk->x--;
-    else if (tk->dir == RIGHT)
+        break;
+    case RIGHT:
+        if (tk->x + 1 > MAP_HEIGHT - 3)
+            return false;
         tk->x++;
-    else if (tk->dir == UP)
+        break;
+    case UP:
+        if (tk->y - 1 < 2)
+            return false;
         tk->y--;
-    else if (tk->dir == DOWN)
+        break;
+    case DOWN:
+        if (tk->y + 1 > MAP_WIDTH - 3)
+            return false;
         tk->y++;
+        break;
+    default:
+        return false;
+    }
+    return true;
 }
 
-void turn(tank * tk, DIRECTION dir)
+bool turn(tank *tk, DIRECTION dir)
 {
+    if (tk->dir == dir)
+        return false;
     tk->dir = dir;
+    return true;
 }

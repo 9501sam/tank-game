@@ -2,6 +2,7 @@
 #define __TANK_H__
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "macros.h"
 
@@ -11,7 +12,7 @@ typedef struct {
     DIRECTION dir;
 } tank;
 
-void goforward(tank *);
-void turn(tank *, DIRECTION);
+bool goforward(tank *);
+bool turn(tank *, DIRECTION);
 
 #endif /*__TANK_H__*/

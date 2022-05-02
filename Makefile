@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -O2
-LDFLAGS = -lncurses
+LDFLAGS = -lncurses -pthread
 
 BINS = server client
 ALL: $(BINS) $(OBJS)
