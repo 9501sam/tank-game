@@ -78,7 +78,8 @@ void deinit_ui(void)
 void refresh_screen(void)
 {
     clear();
-    mvprintw(0, 0, "%d %d, %d (%d, %d)", my_tank.x, my_tank.y, my_tank.dir, 
+    mvprintw(0, 0, "tank:(%d,%d) bullet: (%d,%d)", 
+            my_tank.x, my_tank.y, 
             bullets[0].x, bullets[0].y);
     refresh();
 
