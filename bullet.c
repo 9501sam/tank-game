@@ -6,8 +6,6 @@
 #include <time.h>
 #include <pthread.h>
 
-bullet   bullets[MAX_BULLETS];
-
 static bool bullets_move(void)
 {
     bullet *blt = &bullets[0];

@@ -1,15 +1,13 @@
 #ifndef __BULLET_H__
 #define __BULLET_H__
 
-#include "macros.h"
+#include "tankgame.h"
 
 typedef struct {
     int x;
     int y;
     DIRECTION dir;
 } bullet;
-
-extern bullet   bullets[MAX_BULLETS];
 
 void *fire(void *);
 

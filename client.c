@@ -1,21 +1,29 @@
 #include <stdlib.h>
-#include <ncurses.h>
+#include <unistd.h>
 
-#include "tank.h"
 #include "ui.h"
-#include "macros.h"
 #include "game.h"
+#include "network.h"
 
 int main(int argc, char **argv)
 {
+    char *serv_addr;
+    int port, sockfd;
+    if (argc != 3)
+        err_exit("Usage: ./client <IP address> <port>.\n");
+
+    serv_addr = argv[1];
+    port = atoi(argv[2]);
+
+    sockfd = connect_to_serv(serv_addr, port);
+
     if (atexit(deinit_ui))
         err_exit("atexit");
 
     init_ui();
 
-    // connect();
-
     start_game();
-    endwin();
-    return 0;
+
+    close(sockfd);
+    exit(EXIT_SUCCESS);
 }

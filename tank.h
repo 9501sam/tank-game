@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "macros.h"
+#include "tankgame.h"
 
 typedef struct {
     uint16_t x;

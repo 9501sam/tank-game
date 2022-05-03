@@ -17,10 +17,10 @@ client: client.o network.o ui.o game.o map.o tank.o bullet.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS)
 
 ser: server
-	./server
+	./server 1234
 
 cli: client
-	./client
+	./client 127.0.0.1 1234
 
 clean:
 	$(RM) $(BINS) $(OBJS)

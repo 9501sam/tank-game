@@ -1,21 +1,15 @@
-#include "game.h"
-#include "ui.h"
-#include "macros.h"
-
-#include <ncurses.h>
 #include <pthread.h>
 
-map      *game_map;
-tank     *tanks[MAX_USERS];
+#include "game.h"
+#include "ui.h"
+#include "tankgame.h"
 
-tank my_tank;
+// tank     *tanks[MAX_USERS];
+tank     my_tank;
+bullet   bullets[MAX_BULLETS];
 
 static void init_game(void)
 {
-    game_map = newmap();
-    if (game_map == NULL)
-        err_exit("init_game");
-
     // tank
     my_tank.x = 10;
     my_tank.y = 10;

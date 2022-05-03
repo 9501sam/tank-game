@@ -1,5 +1,5 @@
-#ifndef __MACROS_H__
-#define __MACROS_H__
+#ifndef __TANKGAME_H__
+#define __TANKGAME_H__
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,8 +14,8 @@
 #define MAX_USERS   10
 #define MAX_BULLETS 100
 
-#define MAP_HEIGHT  32
-#define MAP_WIDTH   36
+#define MAP_HEIGHT  20
+#define MAP_WIDTH   20
 
 // direction
 typedef enum {
@@ -33,4 +33,4 @@ struct thread_data {
     pthread_t thread_id;
 };
 
-#endif /*__MACROS_H__*/
+#endif /*__TANKGAME_H__*/
