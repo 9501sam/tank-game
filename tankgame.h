@@ -14,8 +14,8 @@
 #define MAX_USERS   10
 #define MAX_BULLETS 100
 
-#define MAP_HEIGHT  20
-#define MAP_WIDTH   20
+#define MAP_HEIGHT  16
+#define MAP_WIDTH   24
 
 // direction
 typedef enum {

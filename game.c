@@ -5,8 +5,11 @@
 #include "tankgame.h"
 
 // tank     *tanks[MAX_USERS];
-tank     my_tank;
-bullet   bullets[MAX_BULLETS];
+tank    my_tank;
+bullet  bullets[MAX_BULLETS];
+int     sockfd;
+
+struct action act[1];
 
 static void init_game(void)
 {
@@ -56,8 +59,10 @@ static void main_loop(struct thread_data *data)
         default:
             is_change = false;
         }
-        if (is_change)
+        if (is_change) {
             refresh_screen();
+            send(sockfd, &act, sizeof(act), 0);
+        }
         pthread_mutex_unlock(&data->lock);
     }
 }

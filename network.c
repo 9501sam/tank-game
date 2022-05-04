@@ -1,8 +1,3 @@
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-
 #include "network.h"
 #include "tankgame.h"
 
@@ -20,7 +15,7 @@ int connect_to_serv(char *serv_addr, int port)
     server.sin_port = htons(port);
 
     if (connect(sockfd, (struct sockaddr *)&server, sizeof(server)) < 0)
-        err_exit("connect_to_serv\n");
+        perror("connect_to_serv\n");
 
     return sockfd;
 }

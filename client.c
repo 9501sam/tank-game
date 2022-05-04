@@ -8,7 +8,7 @@
 int main(int argc, char **argv)
 {
     char *serv_addr;
-    int port, sockfd;
+    int port;
     if (argc != 3)
         err_exit("Usage: ./client <IP address> <port>.\n");
 
