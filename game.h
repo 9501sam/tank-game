@@ -11,6 +11,6 @@ extern tank     my_tank;
 extern bullet   bullets[MAX_BULLETS];
 extern int sockfd;
 
-void start_game(void);
+void start_game(int);
 
 #endif /*__GAME_H__*/

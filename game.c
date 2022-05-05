@@ -67,7 +67,7 @@ static void main_loop(struct thread_data *data)
     }
 }
 
-void start_game(void)
+void start_game(int fd)
 {
     init_game();
 
