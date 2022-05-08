@@ -15,6 +15,13 @@ typedef enum {
 
 void init_ui(void);
 void deinit_ui(void);
+
+void erase_tank(tank);
+void print_tank(tank);
+
+void erase_bullet(bullet);
+void print_bullet(bullet);
+
 void refresh_screen(void);
 input_t get_input(void);
 

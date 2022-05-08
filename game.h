@@ -6,10 +6,10 @@
 #include "bullet.h"
 #include "network.h"
 
-// extern tank     *tanks[MAX_USERS];
-extern tank     my_tank;
-extern bullet   bullets[MAX_BULLETS];
-extern int sockfd;
+/* these global variable should be syc using lock */
+extern tank             enemies[MAX_USERS];
+extern tank             my_tank;
+extern pthread_mutex_t  lock;
 
 void start_game(int);
 

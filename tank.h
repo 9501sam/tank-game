@@ -14,5 +14,6 @@ typedef struct {
 
 bool goforward(tank *);
 bool turn(tank *, DIRECTION);
+bool attacked(tank *);
 
 #endif /*__TANK_H__*/

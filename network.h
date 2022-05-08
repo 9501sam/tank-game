@@ -6,12 +6,9 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
-#include "tank.h"
-
 struct action {
-    tank tk;
 };
 
-int connect_to_serv(char *, int);
+void *network_thread(void *);
 
 #endif /*__NETWORK_H__*/
