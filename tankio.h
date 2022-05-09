@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <ncurses.h>
 
 #define err_exit(msg)       \
     do {                    \
@@ -43,13 +44,14 @@ typedef struct {
     uint16_t x;
     uint16_t y;
     DIRECTION dir;
+    int id;
 } tank;
 
 bool goforward(tank *);
 bool turn(tank *, DIRECTION);
 bool attacked(tank *);
 
-///*** tank ***///
+///*** bullet ***///
 typedef struct {
     int x;
     int y;
@@ -71,28 +73,34 @@ typedef enum {
 
 void init_ui(void);
 void deinit_ui(void);
-
-void erase_tank(tank);
-void print_tank(tank);
-
-void erase_bullet(bullet);
-void print_bullet(bullet);
-
+void erase_tank(const tank *);
+void print_tank(const tank *);
+void erase_bullet(const bullet *);
+void print_bullet(const bullet *);
 void refresh_screen(void);
 input_t get_input(void);
 
 ///*** network ***///
-struct action {
+struct package { // TODO
+    union {
+        tank    tk;
+        bullet  blt;
+        int     attacked_id
+    };
+    enum {TANK, BULLET, ATTACKED} type;
 };
 
-void *network_thread(void *);
+void *recv_thread(void *);
 
 ///*** game ***///
 /* these global variable should be syc using lock */
 extern tank             enemies[MAX_USERS];
 extern tank             my_tank;
+extern int              client_sock;
 extern pthread_mutex_t  lock;
 
+void add_enemy(tank *);
+void del_enemy(tank *);
 void start_game(int);
 
-#endif /*TANKIO_H*/
+#endif /* TANKIO_H */

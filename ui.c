@@ -1,8 +1,6 @@
 #include <ncurses.h>
 
-#include "ui.h"
-#include "game.h"
-#include "bullet.h"
+#include "tankio.h"
 
 #define PRINT_BLOCK(window, pos_y, pos_x)                         \
     do {                                                          \
@@ -10,7 +8,43 @@
         waddch((window), ACS_CKBOARD);                            \
     } while (0)
 
+#define ERASE_BLOCK(window, pos_y, pos_x)                 \
+    do {                                                  \
+        mvwaddch((window), (pos_y), ((pos_x) << 1), ' '); \
+        waddch((window), ' ');                            \
+    } while (0)
+
 WINDOW *win_game;
+
+void init_ui()
+{
+    initscr();
+    curs_set(0);
+    noecho();
+
+    int starty, startx, height, width;
+    height = MAP_HEIGHT;
+    width = MAP_WIDTH * 2;
+    starty = (LINES - height) / 2;
+    startx = (COLS - width) / 2;
+
+    win_game = newwin(height, width, starty, startx);
+    box(win_game, 0, 0);
+    print_tank(&my_tank);
+    refresh();
+    wrefresh(win_game);
+
+    // nodelay(win_game, TRUE);
+    keypad(stdscr, TRUE);
+    keypad(win_game, TRUE);
+}
+
+void deinit_ui(void)
+{
+    endwin();
+    close(client_sock);
+}
+
 
 const int tank_pattern[NUM_DIR][TANK_SIZE][TANK_SIZE] = {
     [LEFT] = {
@@ -35,60 +69,44 @@ const int tank_pattern[NUM_DIR][TANK_SIZE][TANK_SIZE] = {
     },
 };
     
-static void draw_my_tank(void)
+void print_tank(const tank *tk)
 {
     for (int i = -1; i <= 1; i++)
         for (int j = -1; j <= 1; j++)
-            if (tank_pattern[my_tank.dir][i + 1][j + 1])
-                PRINT_BLOCK(win_game, my_tank.y + i, my_tank.x + j);
+            if (tank_pattern[tk->dir][i + 1][j + 1])
+                PRINT_BLOCK(win_game, tk->y + i, tk->x + j);
 }
 
-static void draw_bullets(void)
+void erase_tank(const tank *tk)
 {
-    PRINT_BLOCK(win_game, bullets[0].y, bullets[0].x);
+    for (int i = -1; i <= 1; i++)
+        for (int j = -1; j <= 1; j++)
+            if (tank_pattern[tk->dir][i + 1][j + 1])
+                ERASE_BLOCK(win_game, tk->y + i, tk->x + j);
 }
 
-void init_ui()
+void print_bullet(const bullet *blt)
 {
-    initscr();
-    curs_set(0);
-    noecho();
-
-    int starty, startx, height, width;
-    height = MAP_HEIGHT;
-    width = MAP_WIDTH * 2;
-    starty = (LINES - height) / 2;
-    startx = (COLS - width) / 2;
-    win_game = newwin(height, width, starty, startx);
-    box(win_game, 0, 0);
-    draw_my_tank();
-    refresh();
-    wrefresh(win_game);
-
-    // nodelay(win_game, TRUE);
-    keypad(stdscr, TRUE);
-    keypad(win_game, TRUE);
+    PRINT_BLOCK(win_game, blt->y, blt->x);
 }
 
-void deinit_ui(void)
+void erase_bullet(const bullet *blt)
 {
-    endwin();
+    ERASE_BLOCK(win_game, blt->y, blt->x);
 }
 
 void refresh_screen(void)
 {
-    clear();
-    mvprintw(0, 0, "tank:(%d,%d) bullet: (%d,%d)", 
-            my_tank.x, my_tank.y, 
-            bullets[0].x, bullets[0].y);
+    // clear();
+    // mvprintw(0, 0, "tank:(%d,%d)", 
+    //         my_tank.x, my_tank.y);
+    // refresh();
+
+    // wclear(win_game);
+    // print_tank(&my_tank);
+    // box(win_game, 0, 0);
+    // wrefresh(win_game);
     refresh();
-
-    wclear(win_game);
-
-    draw_my_tank();
-    draw_bullets();
-
-    box(win_game, 0, 0);
     wrefresh(win_game);
 }
 

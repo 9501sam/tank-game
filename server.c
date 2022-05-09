@@ -4,8 +4,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "network.h"
-#include "tankgame.h"
+#include "tankio.h"
 
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 
@@ -71,13 +70,14 @@ int main(int argc, char **argv)
                         close(i); // bye!
                         FD_CLR(i, &master);
                     } else {            // got data from client
-                        printf("got\n");
+                        printf("got data from client\n");
+                        printf("%d\n", act->data);
                         for (int j = 0; j <= fdmax; j++) {
                             if ((FD_ISSET(j, &master)) && 
                                     (j != listenefd) && (j != i)) {
                                 if (send(j, (void *)act, nbytes, 0) == -1)
                                     perror("send");
-                                printf("%d %d\n", act->tk.x, act->tk.y);
+                                // printf("%d %d\n", act->tk.x, act->tk.y);
                             }
                         }
                     }

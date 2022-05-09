@@ -1,15 +1,12 @@
 #include <pthread.h>
 
-#include "game.h"
-#include "ui.h"
-#include "tankgame.h"
+#include "tankio.h"
 
-// tank     *tanks[MAX_USERS];
-tank    my_tank;
-bullet  bullets[MAX_BULLETS];
-int     sockfd;
-
-struct action act[1];
+/* these global variable should be syc using lock */
+tank             enemies[MAX_USERS];
+tank             my_tank;
+int              client_sock;
+pthread_mutex_t  lock;
 
 static void init_game(void)
 {
@@ -17,12 +14,9 @@ static void init_game(void)
     my_tank.x = 10;
     my_tank.y = 10;
     my_tank.dir = UP;
-
-    // bullets
-    bullets[0].x = 0;
 }
 
-static void main_loop(struct thread_data *data)
+static void main_loop(void)
 {
     input_t in;
     bool is_change = false;
@@ -31,7 +25,7 @@ static void main_loop(struct thread_data *data)
         if (in == INPUT_INVALID)
             continue;
 
-        pthread_mutex_lock(&data->lock);
+        pthread_mutex_lock(&lock);
 
         switch (in) {
         case INPUT_LEFT:
@@ -51,7 +45,6 @@ static void main_loop(struct thread_data *data)
             is_change = goforward(&my_tank) || is_change;
             break;
         case INPUT_FIRE:
-            pthread_create(&data->thread_id, NULL, fire, (void *) data);
             break;
         case INPUT_QUIT:
             return;
@@ -59,25 +52,31 @@ static void main_loop(struct thread_data *data)
         default:
             is_change = false;
         }
-        if (is_change) {
-            refresh_screen();
-            send(sockfd, &act, sizeof(act), 0);
-        }
-        pthread_mutex_unlock(&data->lock);
+        pthread_mutex_unlock(&lock);
     }
+}
+
+void add_enemy(tank *tk)
+{
+}
+
+void del_enemy(tank *tk)
+{
 }
 
 void start_game(int fd)
 {
+
+    pthread_t t1;
+
+    client_sock = fd;
+
     init_game();
+    
+    init_ui();
 
-    refresh_screen();
+    pthread_create(&t1, NULL, recv_thread, NULL);
 
-    struct thread_data data = {.lock = PTHREAD_MUTEX_INITIALIZER,
-        .thread_id = 0};
-
-    // pthread_create(&data.thread_id, NULL, fire, (void *) &data);
-
-    main_loop(&data);
-    pthread_join(data.thread_id, NULL);
+    main_loop();
+    pthread_join(t1, NULL);
 }

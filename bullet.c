@@ -1,15 +1,11 @@
-#include "bullet.h"
-#include "game.h"
-#include "ui.h"
-
 #include <ncurses.h>
 #include <time.h>
 #include <pthread.h>
 
-static bool bullets_move(void)
-{
-    bullet *blt = &bullets[0];
+#include "tankio.h"
 
+static bool bullets_move(bullet *blt)
+{
     switch (blt->dir) {
     case LEFT:
         if (blt->x - 1 < 1)
@@ -39,28 +35,18 @@ static bool bullets_move(void)
 
 void *fire(void *arg)
 {
-    struct thread_data *data = (struct thread_data *)arg;
-
-    pthread_mutex_lock(&data->lock);
-    bullets[0].x = my_tank.x;
-    bullets[0].y = my_tank.y;
-    bullets[0].dir = my_tank.dir;
-    pthread_mutex_unlock(&data->lock);
+    bullet *blt = (bullet *) arg;
 
     bool ret = true;
     while (ret) {
-        pthread_mutex_lock(&data->lock);
+        pthread_mutex_lock(&lock);
         
-        ret = bullets_move();
+        ret = bullets_move(blt);
         refresh_screen();
 
-        pthread_mutex_unlock(&data->lock);
+        pthread_mutex_unlock(&lock);
         napms(12);
     }
 
-    pthread_mutex_lock(&data->lock);
-    bullets[0].x = 0;
-    bullets[0].y = 0;
-    pthread_mutex_unlock(&data->lock);
     return NULL;
 }

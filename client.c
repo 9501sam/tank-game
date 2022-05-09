@@ -1,8 +1,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "ui.h"
-#include "game.h"
+#include "tankio.h"
 
 int connect_to_serv(char *serv_addr, int port)
 {
@@ -39,10 +38,8 @@ int main(int argc, char **argv)
     if (atexit(deinit_ui))
         err_exit("atexit");
 
-    init_ui();
-
     start_game(game_sockfd);
 
-    close(sockfd);
+    close(game_sockfd);
     exit(EXIT_SUCCESS);
 }
