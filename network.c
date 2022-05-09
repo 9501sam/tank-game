@@ -5,6 +5,7 @@
 void *recv_thread(void *arg)
 {
     struct package pkg;
+    int id;
 
     while (recv(client_sock, &pkg, sizeof(pkg), 0)) {
         pthread_mutex_lock(&lock);
@@ -13,7 +14,7 @@ void *recv_thread(void *arg)
             add_enemy(&pkg.data.newtk);
             break;
         case TANK:
-            int id = pkg.data.tk.id;
+            id = pkg.data.tk.id;
             tank oldtk = enemies[id];
             enemies[id] = pkg.data.tk;
             erase_tank(&oldtk);
