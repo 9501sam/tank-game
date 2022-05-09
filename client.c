@@ -16,9 +16,10 @@ int connect_to_serv(char *serv_addr, int port)
     server.sin_family = AF_INET;
     server.sin_port = htons(port);
 
-    if (connect(sockfd, (struct sockaddr *)&server, sizeof(server)) < 0)
-        perror("connect_to_serv\n");
+    if ((connect(sockfd, (struct sockaddr *)&server, sizeof(server))) < 0)
+        err_exit("err: connect_to_serv\n");
 
+    printf("%d\n", sockfd);
     return sockfd;
 }
 
@@ -33,7 +34,8 @@ int main(int argc, char **argv)
     serv_addr = argv[1];
     port = atoi(argv[2]);
 
-    game_sockfd = connect_to_serv(serv_addr, port);
+    if ((game_sockfd = connect_to_serv(serv_addr, port)) < 0)
+        err_exit("fail to connect to server\n");
 
     if (atexit(deinit_ui))
         err_exit("atexit");

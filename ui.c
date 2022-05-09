@@ -29,8 +29,8 @@ void init_ui()
     startx = (COLS - width) / 2;
 
     win_game = newwin(height, width, starty, startx);
-    box(win_game, 0, 0);
     print_tank(&my_tank);
+    box(win_game, 0, 0);
     refresh();
     wrefresh(win_game);
 

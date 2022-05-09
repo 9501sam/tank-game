@@ -1,4 +1,5 @@
 #include <pthread.h>
+#include <string.h>
 
 #include "tankio.h"
 
@@ -11,9 +12,23 @@ pthread_mutex_t  lock;
 static void init_game(void)
 {
     // tank
+    int id;
+    if ((recv(client_sock, &id, sizeof(id), 0)) == -1)
+        err_exit("game: init_game\n");
+
     my_tank.x = 10;
     my_tank.y = 10;
     my_tank.dir = UP;
+    my_tank.id = id;
+    my_tank.ph = DEFAULT_PH;
+
+    struct package pkg = {.kind = NEW_TANK, .data.newtk = my_tank};
+    if ((send(client_sock, &pkg, sizeof(id), 0)) == -1)
+        err_exit("game: init_game, send NEW_TANK\n");
+
+    // enemies
+    for (int i = 0; i < MAX_USERS; i++)
+        enemies[i].id = -1;
 }
 
 static void main_loop(void)
@@ -56,27 +71,31 @@ static void main_loop(void)
     }
 }
 
-void add_enemy(tank *tk)
+bool add_enemy(tank *tk)
 {
+    if (enemies[tk->id].id != -1)
+        return false;
+    enemies[tk->id] = *tk;
+    return true;
 }
 
-void del_enemy(tank *tk)
+bool del_enemy(int id)
 {
+    if (enemies[id].id == -1)
+        return false;
+    enemies[id].id = -1;
+    return true;
 }
 
 void start_game(int fd)
 {
-
     pthread_t t1;
 
     client_sock = fd;
-
     init_game();
-    
     init_ui();
 
     pthread_create(&t1, NULL, recv_thread, NULL);
-
     main_loop();
     pthread_join(t1, NULL);
 }

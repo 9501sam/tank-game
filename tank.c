@@ -33,8 +33,10 @@ bool goforward(tank *tk)
     }
     erase_tank(&oldtk);
     print_tank(tk);
-    struct action act = {5};
-    send(client_sock, &act, sizeof(act), 0);
+    refresh_screen();
+    struct package pkg = {.kind = TANK, .data = {*tk}};
+    if ((send(client_sock, &pkg, sizeof(pkg), 0)) < 0)
+        perror("goforward\n");
     return true;
 }
 
@@ -50,9 +52,12 @@ bool turn(tank *tk, DIRECTION dir)
     tk->dir = dir;
     erase_tank(&oldtk);
     print_tank(tk);
+    refresh_screen();
+    struct package pkg = {.kind = TANK, .data = {*tk}};
+    if ((send(client_sock, &pkg, sizeof(pkg), 0)) < 0)
+        perror("turn\n");
     return true;
 }
-
 
 bool attacked(tank *tk)
 {

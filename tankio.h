@@ -18,12 +18,14 @@
     } while (0)
 
 #define MAX_USERS   10
+#define MAX_FD      100
 #define MAX_BULLETS 100
 
 #define MAP_HEIGHT  16
 #define MAP_WIDTH   24
 
 #define TANK_SIZE   3
+#define DEFAULT_PH  3
 
 // direction
 typedef enum {
@@ -44,6 +46,7 @@ typedef struct {
     uint16_t x;
     uint16_t y;
     DIRECTION dir;
+    int ph;
     int id;
 } tank;
 
@@ -81,13 +84,15 @@ void refresh_screen(void);
 input_t get_input(void);
 
 ///*** network ***///
-struct package { // TODO
+struct package {
+    enum {NEW_TANK, TANK, BULLET, ATTACKED, DIE} kind;
     union {
+        tank    newtk;
         tank    tk;
         bullet  blt;
-        int     attacked_id
-    };
-    enum {TANK, BULLET, ATTACKED} type;
+        int     attacked_id;
+        int     die_id;
+    } data;
 };
 
 void *recv_thread(void *);
@@ -99,8 +104,8 @@ extern tank             my_tank;
 extern int              client_sock;
 extern pthread_mutex_t  lock;
 
-void add_enemy(tank *);
-void del_enemy(tank *);
+bool add_enemy(tank *);
+bool del_enemy(int);
 void start_game(int);
 
 #endif /* TANKIO_H */
