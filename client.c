@@ -7,6 +7,7 @@ int connect_to_serv(char *serv_addr, int port)
 {
     int sockfd;
     struct sockaddr_in server;
+    struct package pkg;
 
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0)
@@ -18,7 +19,16 @@ int connect_to_serv(char *serv_addr, int port)
 
     if ((connect(sockfd, (struct sockaddr *)&server, sizeof(server))) < 0)
         err_exit("err: connect_to_serv\n");
-
+    // get new tank for my_tank
+    if ((recv(sockfd, &pkg, sizeof(pkg), 0)) == -1)
+        err_exit("connect_to_serv\n");
+    if (pkg.kind != NEW_TANK)
+        err_exit("connect_to_serv\n");
+    my_tank.x = pkg.data.tk.x;
+    my_tank.y = pkg.data.tk.y;
+    my_tank.dir = pkg.data.tk.dir;
+    my_tank.ph = pkg.data.tk.ph;
+    my_tank.id = pkg.data.tk.id;
     printf("%d\n", sockfd);
     return sockfd;
 }
@@ -34,11 +44,11 @@ int main(int argc, char **argv)
     serv_addr = argv[1];
     port = atoi(argv[2]);
 
-    if ((game_sockfd = connect_to_serv(serv_addr, port)) < 0)
-        err_exit("fail to connect to server\n");
-
     if (atexit(deinit_ui))
         err_exit("atexit");
+
+    if ((game_sockfd = connect_to_serv(serv_addr, port)) < 0)
+        err_exit("fail to connect to server\n");
 
     start_game(game_sockfd);
 

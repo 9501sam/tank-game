@@ -11,7 +11,9 @@ void *recv_thread(void *arg)
         pthread_mutex_lock(&lock);
         switch (pkg.kind) {
         case NEW_TANK:
-            add_enemy(&pkg.data.newtk);
+            add_enemy(&pkg.data.tk);
+            print_tank(&pkg.data.tk);
+            refresh_screen();
             break;
         case TANK:
             id = pkg.data.tk.id;

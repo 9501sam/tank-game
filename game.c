@@ -11,21 +11,6 @@ pthread_mutex_t  lock;
 
 static void init_game(void)
 {
-    // tank
-    int id;
-    if ((recv(client_sock, &id, sizeof(id), 0)) == -1)
-        err_exit("game: init_game\n");
-
-    my_tank.x = 10;
-    my_tank.y = 10;
-    my_tank.dir = UP;
-    my_tank.id = id;
-    my_tank.ph = DEFAULT_PH;
-
-    struct package pkg = {.kind = NEW_TANK, .data.newtk = my_tank};
-    if ((send(client_sock, &pkg, sizeof(id), 0)) == -1)
-        err_exit("game: init_game, send NEW_TANK\n");
-
     // enemies
     for (int i = 0; i < MAX_USERS; i++)
         enemies[i].id = -1;

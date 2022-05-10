@@ -36,11 +36,6 @@ typedef enum {
     NUM_DIR,
 } DIRECTION;
 
-struct thread_data {
-    pthread_mutex_t lock;
-    pthread_t thread_id;
-};
-
 ///*** tank ***///
 typedef struct {
     uint16_t x;
@@ -87,7 +82,6 @@ input_t get_input(void);
 struct package {
     enum {NEW_TANK, TANK, BULLET, ATTACKED, DIE} kind;
     union {
-        tank    newtk;
         tank    tk;
         bullet  blt;
         int     attacked_id;

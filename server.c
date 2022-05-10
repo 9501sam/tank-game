@@ -31,8 +31,6 @@ static void assign_tank_id(const int newfd)
 {
     for (int i = 0; i < MAX_USERS; i++)
         if (id_to_fd[i] == -1) {
-            if ((send(newfd, &i, sizeof(i), 0)) < 0)
-                perror("error: assign_tank_id\n");
             id_to_fd[i] = newfd;
             fd_to_id[newfd] = i;
             return;
@@ -48,6 +46,7 @@ static void release_tank_id(const int fd)
 
 static void handle_new_connect()
 {
+    int newid;
     addrlen = sizeof(remoteaddr);
     newfd = accept(listenefd, (struct sockaddr *)&remoteaddr,
             &addrlen);
@@ -57,7 +56,44 @@ static void handle_new_connect()
         FD_SET(newfd, &master);
         fdmax = MAX(fdmax, newfd);
     }
+
     assign_tank_id(newfd);
+    newid = fd_to_id[newfd];
+    struct package newtk_pkg = {
+        .kind = NEW_TANK,
+        .data.tk = {
+            .x = 10,
+            .y = 10,
+            .dir = UP,
+            .ph = DEFAULT_PH,
+            .id = newid,
+        },
+    };
+    // talk to new player about new tank and 
+    // its enemies
+    if (send(newfd, &newtk_pkg, sizeof(newtk_pkg), 0) == -1)
+        perror("handle_data(): send()");
+    for (int i = 0; i <= fdmax; i++) {
+        if ((FD_ISSET(i, &master)) && (i != listenefd) && (i != newfd)) {
+            int id = fd_to_id[i];
+            tank tk = tanks[id];
+            struct package pkg = {
+                .kind = NEW_TANK,
+                .data.tk = tk,
+            }; 
+            if (send(newfd, &pkg, nbytes, 0) == -1)
+                perror("send");
+        }
+    }
+
+    // talk to all the other players about the 
+    // new player
+    for (int i = 0; i <= fdmax; i++) {
+        if ((FD_ISSET(i, &master)) && (i != listenefd) && (i != newfd))
+            if (send(i, &newtk_pkg, nbytes, 0) == -1)
+                perror("send");
+    }
+
     printf("selectserver: new connection on "
             "socket %d\n", newfd);
 }
@@ -81,23 +117,9 @@ static void handle_data(int fd)
         FD_CLR(fd, &master);
         release_tank_id(fd);
     } else {                                                // 3. success got data from client
-                                                            // NEW_TANK, TANK, BULLET, ATTACKED or DIE
+                                                            // TANK, BULLET, ATTACKED or DIE
         if (pkg.kind == DIE) {              // DIE
             release_tank_id(fd);
-        } else if (pkg.kind == NEW_TANK) {  // NEW_TANK
-            int id = pkg.data.newtk.id;
-            tanks[id] = pkg.data.newtk;
-            for (int i = 0; i <= fdmax; i++) {
-                if ((FD_ISSET(i, &master)) && (i != listenefd) && (i != fd)) {
-                    int id = fd_to_id[i];
-                    struct package pkg = {
-                        .kind = TANK,
-                        .data.tk = tanks[id],
-                    };
-                    if ((send(fd, &pkg, sizeof(pkg), 0)) == -1)
-                        perror("handle_data\n");
-                }
-            }
         } else if (pkg.kind == TANK) {      // TANK
             int id = pkg.data.tk.id;
             tanks[id] = pkg.data.tk;
