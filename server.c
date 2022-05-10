@@ -85,6 +85,8 @@ static void handle_data(int fd)
         if (pkg.kind == DIE) {              // DIE
             release_tank_id(fd);
         } else if (pkg.kind == NEW_TANK) {  // NEW_TANK
+            int id = pkg.data.newtk.id;
+            tanks[id] = pkg.data.newtk;
             for (int i = 0; i <= fdmax; i++) {
                 if ((FD_ISSET(i, &master)) && (i != listenefd) && (i != fd)) {
                     int id = fd_to_id[i];
