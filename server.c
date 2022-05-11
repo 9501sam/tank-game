@@ -59,20 +59,27 @@ static void handle_new_connect()
 
     assign_tank_id(newfd);
     newid = fd_to_id[newfd];
+    printf("selectserver: new connection:"
+            "fd=%d, id=%d\n"
+            , newfd, newid);
+
+    tank newtk = {
+        .x = 10,
+        .y = 10,
+        .dir = UP,
+        .ph = DEFAULT_PH,
+        .id = newid,
+    };
     struct package newtk_pkg = {
         .kind = NEW_TANK,
-        .data.tk = {
-            .x = 10,
-            .y = 10,
-            .dir = UP,
-            .ph = DEFAULT_PH,
-            .id = newid,
-        },
+        .data.tk = newtk,
     };
+    tanks[newid] = newtk;
     // talk to new player about new tank and 
     // its enemies
     if (send(newfd, &newtk_pkg, sizeof(newtk_pkg), 0) == -1)
         perror("handle_data(): send()");
+    // printf("NEW_TANK, fd=%d x=%d y=%d\n", newfd, tk.x, tk.y);
     for (int i = 0; i <= fdmax; i++) {
         if ((FD_ISSET(i, &master)) && (i != listenefd) && (i != newfd)) {
             int id = fd_to_id[i];
@@ -81,8 +88,9 @@ static void handle_new_connect()
                 .kind = NEW_TANK,
                 .data.tk = tk,
             }; 
-            if (send(newfd, &pkg, nbytes, 0) == -1)
+            if (send(newfd, &pkg, sizeof(pkg), 0) == -1)
                 perror("send");
+            // printf("NEW_TANK, fd=%d x=%d y=%d\n", newfd, tk.x, tk.y);
         }
     }
 
@@ -90,12 +98,9 @@ static void handle_new_connect()
     // new player
     for (int i = 0; i <= fdmax; i++) {
         if ((FD_ISSET(i, &master)) && (i != listenefd) && (i != newfd))
-            if (send(i, &newtk_pkg, nbytes, 0) == -1)
+            if (send(i, &newtk_pkg, sizeof(newtk_pkg), 0) == -1)
                 perror("send");
     }
-
-    printf("selectserver: new connection on "
-            "socket %d\n", newfd);
 }
 
 static void handle_data(int fd)
@@ -108,7 +113,7 @@ static void handle_data(int fd)
             struct package tmp = {.kind = DIE, .data.die_id = fd_to_id[fd]};
             for (int j = 0; j <= fdmax; j++) {
                 if ((FD_ISSET(j, &master)) && (j != listenefd) && (j != fd))
-                    if (send(j, &tmp, nbytes, 0) == -1)
+                    if (send(j, &tmp, sizeof(tmp), 0) == -1)
                         perror("send");
             }
         }
@@ -127,7 +132,7 @@ static void handle_data(int fd)
 
         for (int j = 0; j <= fdmax; j++) {
             if ((FD_ISSET(j, &master)) && (j != listenefd) && (j != fd))
-                if (send(j, &pkg, nbytes, 0) == -1)
+                if (send(j, &pkg, sizeof(pkg), 0) == -1)
                     perror("send");
         }
     }

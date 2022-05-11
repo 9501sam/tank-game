@@ -11,7 +11,6 @@ pthread_mutex_t  lock;
 
 static void init_game(void)
 {
-    // enemies
     for (int i = 0; i < MAX_USERS; i++)
         enemies[i].id = -1;
 }
