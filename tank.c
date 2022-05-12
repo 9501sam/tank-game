@@ -1,37 +1,72 @@
 #include "tankio.h"
 
+const int tank_pattern[NUM_DIR][TANK_SIZE][TANK_SIZE] = {
+    [LEFT] = {
+        {0, 1, 1},
+        {1, 1, 1},
+        {0, 1, 1},
+    },
+    [RIGHT] = {
+        {1, 1, 0},
+        {1, 1, 1},
+        {1, 1, 0},
+    },
+    [UP] = {
+        {0, 1, 0},
+        {1, 1, 1},
+        {1, 1, 1},
+    },
+    [DOWN] = {
+        {1, 1, 1},
+        {1, 1, 1},
+        {0, 1, 0},
+    },
+};
+
+static bool check_tank(tank *tk)
+{
+    int x = tk->x;
+    int y = tk->y;
+    if (x < 2)
+        return false;
+    if (x > MAP_WIDTH - 3)
+        return false;
+    if (y < 2)
+        return false;
+    if (y > MAP_HEIGHT - 3)
+        return false;
+    for (int i = -1; i <= 1; i++)
+        for (int j = -1; j <= 1; j++)
+            if ((map[y + i][x + j] != BLOCK_EMPTY) &&
+                    (map[y + i][x + j] != tk->id))
+                return false;
+    return true;
+}
+
 bool goforward(tank *tk)
 {
-    tank oldtk = {
-        .x = tk->x,
-        .y = tk->y,
-        .dir = tk->dir,
-    };
-    switch (tk->dir) {
+    tank newtk = *tk;
+    switch (newtk.dir) {
     case LEFT:
-        if (tk->x - 1 < 2)
-            return false;
-        tk->x--;
+        newtk.x--;
         break;
     case RIGHT:
-        if (tk->x + 1 > MAP_WIDTH - 3)
-            return false;
-        tk->x++;
+        newtk.x++;
         break;
     case UP:
-        if (tk->y - 1 < 2)
-            return false;
-        tk->y--;
+        newtk.y--;
         break;
     case DOWN:
-        if (tk->y + 1 > MAP_HEIGHT - 3)
-            return false;
-        tk->y++;
+        newtk.y++;
         break;
     default:
         return false;
     }
-    erase_tank(&oldtk);
+    if (!check_tank(&newtk))
+        return false;
+    erase_tank(tk);
+    tk->x = newtk.x;
+    tk->y = newtk.y;
     print_tank(tk);
     refresh_screen();
     struct package pkg = {.kind = TANK, .data = {*tk}};
@@ -42,15 +77,10 @@ bool goforward(tank *tk)
 
 bool turn(tank *tk, DIRECTION dir)
 {
-    tank oldtk = {
-        .x = tk->x,
-        .y = tk->y,
-        .dir = tk->dir,
-    };
     if (tk->dir == dir)
         return false;
+    erase_tank(tk);
     tk->dir = dir;
-    erase_tank(&oldtk);
     print_tank(tk);
     refresh_screen();
     struct package pkg = {.kind = TANK, .data = {*tk}};

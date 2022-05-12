@@ -3,16 +3,18 @@
 
 #include "tankio.h"
 
-/* these global variable should be syc using lock */
+/* these global variables should be sync using lock */
 tank             enemies[MAX_USERS];
 tank             my_tank;
 int              client_sock;
+int              map[MAP_HEIGHT][MAP_WIDTH];
 pthread_mutex_t  lock;
 
 static void init_game(void)
 {
+    memset(map, BLOCK_EMPTY, sizeof(map));
     for (int i = 0; i < MAX_USERS; i++)
-        enemies[i].id = -1;
+        enemies[i].id = NOT_USED;
 }
 
 static void main_loop(void)
@@ -23,9 +25,7 @@ static void main_loop(void)
         in = get_input();
         if (in == INPUT_INVALID)
             continue;
-
         pthread_mutex_lock(&lock);
-
         switch (in) {
         case INPUT_LEFT:
             is_change = turn(&my_tank, LEFT);

@@ -3,6 +3,7 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #include "tankio.h"
 
@@ -27,10 +28,18 @@ socklen_t addrlen;
 int nbytes;
 struct package pkg;
 
+void close_all_fd(void)
+{
+    for (int i = 0; i <= fdmax; i++)
+        if (FD_ISSET(i, &master))
+            close(i);
+    return NULL;
+}
+
 static void assign_tank_id(const int newfd)
 {
     for (int i = 0; i < MAX_USERS; i++)
-        if (id_to_fd[i] == -1) {
+        if (id_to_fd[i] == NOT_USED) {
             id_to_fd[i] = newfd;
             fd_to_id[newfd] = i;
             return;
@@ -40,8 +49,8 @@ static void assign_tank_id(const int newfd)
 static void release_tank_id(const int fd)
 {
     int id = fd_to_id[fd];
-    id_to_fd[id] = -1;
-    fd_to_id[fd] = -1;
+    id_to_fd[id] = NOT_USED;
+    fd_to_id[fd] = NOT_USED;
 }
 
 static void handle_new_connect()
@@ -145,8 +154,11 @@ int main(int argc, char **argv)
 
     port = atoi(argv[1]);
 
-    memset(id_to_fd, -1, sizeof(id_to_fd));
-    memset(fd_to_id, -1, sizeof(fd_to_id));
+    memset(id_to_fd, NOT_USED, sizeof(id_to_fd));
+    memset(fd_to_id, NOT_USED, sizeof(fd_to_id));
+
+    if (atexit(close_all_fd))
+        err_exit("atexit");
 
     listenefd = socket(AF_INET, SOCK_STREAM, 0);
     if (listenefd < 0)

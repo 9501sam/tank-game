@@ -34,7 +34,6 @@ void init_ui()
     refresh();
     wrefresh(win_game);
 
-    // nodelay(win_game, TRUE);
     keypad(stdscr, TRUE);
     keypad(win_game, TRUE);
 }
@@ -44,45 +43,26 @@ void deinit_ui(void)
     endwin();
     close(client_sock);
 }
-
-
-const int tank_pattern[NUM_DIR][TANK_SIZE][TANK_SIZE] = {
-    [LEFT] = {
-        {0, 1, 1},
-        {1, 1, 1},
-        {0, 1, 1},
-    },
-    [RIGHT] = {
-        {1, 1, 0},
-        {1, 1, 1},
-        {1, 1, 0},
-    },
-    [UP] = {
-        {0, 1, 0},
-        {1, 1, 1},
-        {1, 1, 1},
-    },
-    [DOWN] = {
-        {1, 1, 1},
-        {1, 1, 1},
-        {0, 1, 0},
-    },
-};
     
 void print_tank(const tank *tk)
 {
+    int id = tk->id;
     for (int i = -1; i <= 1; i++)
-        for (int j = -1; j <= 1; j++)
+        for (int j = -1; j <= 1; j++) {
+            map[tk->y + i][tk->x + j] = id;
             if (tank_pattern[tk->dir][i + 1][j + 1])
                 PRINT_BLOCK(win_game, tk->y + i, tk->x + j);
+        }
 }
 
 void erase_tank(const tank *tk)
 {
     for (int i = -1; i <= 1; i++)
-        for (int j = -1; j <= 1; j++)
+        for (int j = -1; j <= 1; j++) {
+            map[tk->y + i][tk->x + j] = BLOCK_EMPTY;
             if (tank_pattern[tk->dir][i + 1][j + 1])
                 ERASE_BLOCK(win_game, tk->y + i, tk->x + j);
+        }
 }
 
 void print_bullet(const bullet *blt)
@@ -97,15 +77,6 @@ void erase_bullet(const bullet *blt)
 
 void refresh_screen(void)
 {
-    // clear();
-    // mvprintw(0, 0, "tank:(%d,%d)", 
-    //         my_tank.x, my_tank.y);
-    // refresh();
-
-    // wclear(win_game);
-    // print_tank(&my_tank);
-    // box(win_game, 0, 0);
-    // wrefresh(win_game);
     refresh();
     wrefresh(win_game);
 }

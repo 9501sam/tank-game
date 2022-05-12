@@ -27,6 +27,9 @@
 #define TANK_SIZE   3
 #define DEFAULT_PH  3
 
+#define BLOCK_EMPTY -1
+#define NOT_USED    -1
+
 // direction
 typedef enum {
     LEFT,
@@ -84,19 +87,22 @@ struct package {
     union {
         tank    tk;
         bullet  blt;
-        int     attacked_id;
-        int     die_id;
+        uint8_t attacked_id;
+        uint8_t die_id;
     } data;
 };
 
 void *recv_thread(void *);
 
 ///*** game ***///
-/* these global variable should be syc using lock */
+/* these global variables should be sync using lock */
 extern tank             enemies[MAX_USERS];
 extern tank             my_tank;
 extern int              client_sock;
+extern int              map[MAP_HEIGHT][MAP_WIDTH];
 extern pthread_mutex_t  lock;
+
+extern const int tank_pattern[NUM_DIR][TANK_SIZE][TANK_SIZE];
 
 bool add_enemy(tank *);
 bool del_enemy(int);
