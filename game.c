@@ -26,6 +26,7 @@ static void main_loop(void)
         if (in == INPUT_INVALID)
             continue;
         pthread_mutex_lock(&lock);
+        attron_mytk();
         switch (in) {
         case INPUT_LEFT:
             is_change = turn(&my_tank, LEFT);
@@ -51,6 +52,7 @@ static void main_loop(void)
         default:
             is_change = false;
         }
+        attroff_mytk();
         pthread_mutex_unlock(&lock);
     }
 }

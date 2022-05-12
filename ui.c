@@ -16,11 +16,23 @@
 
 WINDOW *win_game;
 
-void init_ui()
+void attron_mytk(void)
+{
+    init_pair(PAIR_MYTK, COLOR_MYTK, COLOR_BLACK);
+    wattron(win_game, COLOR_PAIR(PAIR_MYTK));
+}
+
+void attroff_mytk(void)
+{
+    wattroff(win_game, COLOR_PAIR(PAIR_MYTK));
+}
+
+void init_ui(void)
 {
     initscr();
     curs_set(0);
     noecho();
+    start_color();
 
     int starty, startx, height, width;
     height = MAP_HEIGHT;
@@ -29,7 +41,11 @@ void init_ui()
     startx = (COLS - width) / 2;
 
     win_game = newwin(height, width, starty, startx);
+
+    attron_mytk();
     print_tank(&my_tank);
+    attroff_mytk();
+
     box(win_game, 0, 0);
     refresh();
     wrefresh(win_game);

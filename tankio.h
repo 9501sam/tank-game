@@ -30,6 +30,9 @@
 #define BLOCK_EMPTY -1
 #define NOT_USED    -1
 
+#define PAIR_MYTK   1
+#define COLOR_MYTK  COLOR_GREEN
+
 // direction
 typedef enum {
     LEFT,
@@ -79,6 +82,8 @@ void print_tank(const tank *);
 void erase_bullet(const bullet *);
 void print_bullet(const bullet *);
 void refresh_screen(void);
+void attron_mytk(void);
+void attroff_mytk(void);
 input_t get_input(void);
 
 ///*** network ***///
