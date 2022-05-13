@@ -1,5 +1,3 @@
-#include <pthread.h>
-
 #include "tankio.h"
 
 void *recv_thread(void *arg)

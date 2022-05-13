@@ -1,6 +1,3 @@
-#include <stdlib.h>
-#include <unistd.h>
-
 #include "tankio.h"
 
 static int connect_to_serv(char *serv_addr, int port)

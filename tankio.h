@@ -9,7 +9,11 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <pthread.h>
+#include <string.h>
+#include <time.h>
 #include <ncurses.h>
+
 
 #define err_exit(msg)       \
     do {                    \
@@ -26,6 +30,7 @@
 
 #define TANK_SIZE   3
 #define DEFAULT_HP  3
+#define NUM_BULLETS 3
 
 #define BLOCK_EMPTY -1
 #define NOT_USED    -1
@@ -47,7 +52,8 @@ typedef struct {
     uint16_t x;
     uint16_t y;
     DIRECTION dir;
-    int ph;
+    int hp;
+    int nblts;
     int id;
 } tank;
 
@@ -63,6 +69,7 @@ typedef struct {
 } bullet;
 
 void *fire(void *);
+void fire_thread_create(tank *tk);
 
 ///*** ui ***///
 typedef enum {

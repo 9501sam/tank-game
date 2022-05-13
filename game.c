@@ -1,6 +1,3 @@
-#include <pthread.h>
-#include <string.h>
-
 #include "tankio.h"
 
 /* these global variables should be sync using lock */
@@ -8,7 +5,7 @@ tank             enemies[MAX_USERS];
 tank             my_tank;
 int              client_sock;
 int              map[MAP_HEIGHT][MAP_WIDTH];
-pthread_mutex_t  lock;
+pthread_mutex_t  lock = PTHREAD_MUTEX_INITIALIZER;
 
 static void init_game(void)
 {
@@ -20,39 +17,45 @@ static void init_game(void)
 static void main_loop(void)
 {
     input_t in;
-    bool is_change = false;
     while (1) {
         in = get_input();
         if (in == INPUT_INVALID)
             continue;
         pthread_mutex_lock(&lock);
-        attron_mytk();
         switch (in) {
         case INPUT_LEFT:
-            is_change = turn(&my_tank, LEFT);
-            is_change = goforward(&my_tank) || is_change;
+            attron_mytk();
+            turn(&my_tank, LEFT);
+            goforward(&my_tank);
+            attroff_mytk();
             break;
         case INPUT_RIGHT:
-            is_change = turn(&my_tank, RIGHT);
-            is_change = goforward(&my_tank) || is_change;
+            attron_mytk();
+            turn(&my_tank, RIGHT);
+            goforward(&my_tank);
+            attroff_mytk();
             break;
         case INPUT_UP:
-            is_change = turn(&my_tank, UP);
-            is_change = goforward(&my_tank) || is_change;
+            attron_mytk();
+            turn(&my_tank, UP);
+            goforward(&my_tank);
+            attroff_mytk();
             break;
         case INPUT_DOWN:
-            is_change = turn(&my_tank, DOWN);
-            is_change = goforward(&my_tank) || is_change;
+            attron_mytk();
+            turn(&my_tank, DOWN);
+            goforward(&my_tank);
+            attroff_mytk();
             break;
         case INPUT_FIRE:
+            fire_thread_create(&my_tank);
             break;
         case INPUT_QUIT:
             return;
             break;
-        default:
-            is_change = false;
+        case INPUT_INVALID:
+            break;
         }
-        attroff_mytk();
         pthread_mutex_unlock(&lock);
     }
 }
@@ -79,7 +82,6 @@ void start_game(void)
 
     init_game();
     init_ui();
-
     pthread_create(&t1, NULL, recv_thread, NULL);
     main_loop();
     pthread_join(t1, NULL);

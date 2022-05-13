@@ -1,10 +1,3 @@
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <string.h>
-#include <unistd.h>
-#include <stdlib.h>
-
 #include "tankio.h"
 
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
@@ -86,7 +79,8 @@ static void handle_new_connect(void)
         .x = 10,
         .y = 10,
         .dir = UP,
-        .ph = DEFAULT_HP,
+        .hp = DEFAULT_HP,
+        .nblts = NUM_BULLETS,
         .id = newid,
     };
     struct package newtk_pkg = {

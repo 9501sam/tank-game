@@ -1,7 +1,3 @@
-#include <ncurses.h>
-#include <time.h>
-#include <pthread.h>
-
 #include "tankio.h"
 
 static bool bullets_move(bullet *blt)
@@ -36,17 +32,34 @@ static bool bullets_move(bullet *blt)
 void *fire(void *arg)
 {
     bullet *blt = (bullet *) arg;
-
-    bool ret = true;
-    while (ret) {
+    bool is_moved = true;
+    pthread_mutex_lock(&lock);
+    print_bullet(blt);
+    refresh_screen();
+    pthread_mutex_unlock(&lock);
+    while (is_moved) {
         pthread_mutex_lock(&lock);
-        
-        ret = bullets_move(blt);
+        erase_bullet(blt);
+        is_moved = bullets_move(blt);
+        print_bullet(blt);
         refresh_screen();
-
         pthread_mutex_unlock(&lock);
         napms(12);
     }
-
+    free(blt);
     return NULL;
+}
+
+void fire_thread_create(tank *tk)
+{
+    pthread_t tid;
+    bullet *blt = (bullet *) malloc(sizeof(bullet));
+    blt->x = tk->x;
+    blt->y = tk->y;
+    blt->dir = tk->dir;
+    if (!bullets_move(blt))
+        return;
+    if (!bullets_move(blt))
+        return;
+    pthread_create(&tid, NULL, fire, (void *) blt);
 }

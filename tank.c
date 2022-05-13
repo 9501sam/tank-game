@@ -83,7 +83,7 @@ bool turn(tank *tk, DIRECTION dir)
     tk->dir = dir;
     print_tank(tk);
     refresh_screen();
-    struct package pkg = {.kind = TANK, .data = {*tk}};
+    struct package pkg = {.kind = TANK, .data.tk = *tk};
     if ((send(client_sock, &pkg, sizeof(pkg), 0)) < 0)
         perror("turn\n");
     return true;

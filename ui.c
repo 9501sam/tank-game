@@ -1,5 +1,3 @@
-#include <ncurses.h>
-
 #include "tankio.h"
 
 #define PRINT_BLOCK(window, pos_y, pos_x)                         \
