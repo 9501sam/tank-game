@@ -8,10 +8,10 @@ ALL: $(BINS) $(OBJS)
 OBJS = server.o client.o network.o ui.o game.o tank.o bullet.o
 
 %.o: %.c
-	$(CC) -o $@ -c $^ $(CFLAGS) $(LDFLAGS)
+	$(CC) -o $@ -c $^ $(CFLAGS)
 
-server: server.o # network.o ui.o
-	$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS)
+server: server.o
+	$(CC) -o $@ $^ $(CFLAGS)
 
 client: client.o network.o ui.o game.o tank.o bullet.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS)

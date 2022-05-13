@@ -73,11 +73,10 @@ bool del_enemy(int id)
     return true;
 }
 
-void start_game(int fd)
+void start_game(void)
 {
     pthread_t t1;
 
-    client_sock = fd;
     init_game();
     init_ui();
 

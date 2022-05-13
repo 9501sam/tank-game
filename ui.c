@@ -57,7 +57,6 @@ void init_ui(void)
 void deinit_ui(void)
 {
     endwin();
-    close(client_sock);
 }
     
 void print_tank(const tank *tk)

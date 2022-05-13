@@ -28,6 +28,12 @@ void *recv_thread(void *arg)
         case ATTACKED:
             break;
         case DIE:
+            id = pkg.data.die_id;
+            tank dietk = enemies[id];
+            if (dietk.id != NOT_USED) {
+                erase_tank(&dietk);
+                refresh_screen();
+            }
             break;
         }
         pthread_mutex_unlock(&lock);

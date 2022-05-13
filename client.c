@@ -3,7 +3,7 @@
 
 #include "tankio.h"
 
-int connect_to_serv(char *serv_addr, int port)
+static int connect_to_serv(char *serv_addr, int port)
 {
     int sockfd;
     struct sockaddr_in server;
@@ -24,19 +24,20 @@ int connect_to_serv(char *serv_addr, int port)
         err_exit("connect_to_serv\n");
     if (pkg.kind != NEW_TANK)
         err_exit("connect_to_serv\n");
-    my_tank.x = pkg.data.tk.x;
-    my_tank.y = pkg.data.tk.y;
-    my_tank.dir = pkg.data.tk.dir;
-    my_tank.ph = pkg.data.tk.ph;
-    my_tank.id = pkg.data.tk.id;
+    my_tank = pkg.data.tk;
     printf("%d\n", sockfd);
     return sockfd;
+}
+
+void deinit_client(void)
+{
+    deinit_ui();
+    close(client_sock);
 }
 
 int main(int argc, char **argv)
 {
     char *serv_addr;
-    int game_sockfd;
     int port;
     if (argc != 3)
         err_exit("Usage: ./client <IP address> <port>.\n");
@@ -44,14 +45,13 @@ int main(int argc, char **argv)
     serv_addr = argv[1];
     port = atoi(argv[2]);
 
-    if (atexit(deinit_ui))
+    if (atexit(deinit_client))
         err_exit("atexit");
 
-    if ((game_sockfd = connect_to_serv(serv_addr, port)) < 0)
+    if ((client_sock = connect_to_serv(serv_addr, port)) < 0)
         err_exit("fail to connect to server\n");
 
-    start_game(game_sockfd);
+    start_game();
 
-    close(game_sockfd);
     exit(EXIT_SUCCESS);
 }

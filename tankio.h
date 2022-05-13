@@ -25,7 +25,7 @@
 #define MAP_WIDTH   24
 
 #define TANK_SIZE   3
-#define DEFAULT_PH  3
+#define DEFAULT_HP  3
 
 #define BLOCK_EMPTY -1
 #define NOT_USED    -1
@@ -90,10 +90,10 @@ input_t get_input(void);
 struct package {
     enum {NEW_TANK, TANK, BULLET, ATTACKED, DIE} kind;
     union {
-        tank    tk;
-        bullet  blt;
-        uint8_t attacked_id;
-        uint8_t die_id;
+        tank   tk;
+        bullet blt;
+        int8_t attacked_id;
+        int8_t die_id;
     } data;
 };
 
@@ -111,6 +111,6 @@ extern const int tank_pattern[NUM_DIR][TANK_SIZE][TANK_SIZE];
 
 bool add_enemy(tank *);
 bool del_enemy(int);
-void start_game(int);
+void start_game(void);
 
 #endif /* TANKIO_H */

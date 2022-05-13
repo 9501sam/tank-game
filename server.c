@@ -33,7 +33,17 @@ void close_all_fd(void)
     for (int i = 0; i <= fdmax; i++)
         if (FD_ISSET(i, &master))
             close(i);
-    return NULL;
+}
+
+static void player_die(int fd)
+{
+    int id = fd_to_id[fd];
+    struct package dietk_pkg = {.kind = DIE, .data.die_id = id};
+    for (int j = 0; j <= fdmax; j++) {
+        if ((FD_ISSET(j, &master)) && (j != listenefd) && (j != fd))
+            if (send(j, &dietk_pkg, sizeof(dietk_pkg), 0) == -1)
+                perror("send");
+    }
 }
 
 static void assign_tank_id(const int newfd)
@@ -53,7 +63,7 @@ static void release_tank_id(const int fd)
     fd_to_id[fd] = NOT_USED;
 }
 
-static void handle_new_connect()
+static void handle_new_connect(void)
 {
     int newid;
     addrlen = sizeof(remoteaddr);
@@ -69,14 +79,14 @@ static void handle_new_connect()
     assign_tank_id(newfd);
     newid = fd_to_id[newfd];
     printf("selectserver: new connection:"
-            "fd=%d, id=%d\n"
-            , newfd, newid);
+            "fd=%d, id=%d\n",
+              newfd, newid);
 
     tank newtk = {
         .x = 10,
         .y = 10,
         .dir = UP,
-        .ph = DEFAULT_PH,
+        .ph = DEFAULT_HP,
         .id = newid,
     };
     struct package newtk_pkg = {
@@ -88,7 +98,6 @@ static void handle_new_connect()
     // its enemies
     if (send(newfd, &newtk_pkg, sizeof(newtk_pkg), 0) == -1)
         perror("handle_data(): send()");
-    // printf("NEW_TANK, fd=%d x=%d y=%d\n", newfd, tk.x, tk.y);
     for (int i = 0; i <= fdmax; i++) {
         if ((FD_ISSET(i, &master)) && (i != listenefd) && (i != newfd)) {
             int id = fd_to_id[i];
@@ -99,10 +108,8 @@ static void handle_new_connect()
             }; 
             if (send(newfd, &pkg, sizeof(pkg), 0) == -1)
                 perror("send");
-            // printf("NEW_TANK, fd=%d x=%d y=%d\n", newfd, tk.x, tk.y);
         }
     }
-
     // talk to all the other players about the 
     // new player
     for (int i = 0; i <= fdmax; i++) {
@@ -117,21 +124,17 @@ static void handle_data(int fd)
     if ((nbytes = recv(fd, &pkg, sizeof(pkg), 0)) <= 0) {
         if (nbytes == 0) {                                  // 1. connection closed
             printf("server: socket %d hung up\n", fd);
+            player_die(fd);
         } else {                                            // 2. error on got data
             perror("recv");
-            struct package tmp = {.kind = DIE, .data.die_id = fd_to_id[fd]};
-            for (int j = 0; j <= fdmax; j++) {
-                if ((FD_ISSET(j, &master)) && (j != listenefd) && (j != fd))
-                    if (send(j, &tmp, sizeof(tmp), 0) == -1)
-                        perror("send");
-            }
+            player_die(fd);
         }
-        ///*** player fd is die, bye!!! ***///
+        // player fd is die, bye!!!
         close(fd);
         FD_CLR(fd, &master);
         release_tank_id(fd);
     } else {                                                // 3. success got data from client
-                                                            // TANK, BULLET, ATTACKED or DIE
+                                                            // NEW_TANK, TANK, BULLET, ATTACKED or DIE
         if (pkg.kind == DIE) {              // DIE
             release_tank_id(fd);
         } else if (pkg.kind == TANK) {      // TANK
