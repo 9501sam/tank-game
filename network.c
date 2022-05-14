@@ -27,9 +27,22 @@ void *recv_thread(void *arg)
             refresh_screen();
             break;
         case SHOOT:
+            id = pkg.data.tk.id;
+            enemies[id] = pkg.data.tk;
+            attron_tank(id);
+            erase_tank_info(&enemies[id]);
+            print_tank_info(&enemies[id]);
+            attroff_tank(id);
+            refresh_screen();
             shoot_thread_create(&pkg.data.tk);
             break;
         case ATTACKED:
+            id = pkg.data.attacked_id;
+            enemies[id].hp--;
+            attron_tank(id);
+            print_tank_info(&enemies[id]);
+            attroff_tank(id);
+            refresh_screen();
             break;
         case DIE:
             id = pkg.data.die_id;

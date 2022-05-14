@@ -115,15 +115,19 @@ input_t get_input(void)
     int c = wgetch(win_game);
     switch (c) {
     case KEY_LEFT:
+    case 'h':
         return INPUT_LEFT;
         break;
     case KEY_RIGHT:
+    case 'l':
         return INPUT_RIGHT;
         break;
     case KEY_UP:
+    case 'k':
         return INPUT_UP;
         break;
     case KEY_DOWN:
+    case 'j':
         return INPUT_DOWN;
         break;
     case ' ':

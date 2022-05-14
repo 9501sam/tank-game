@@ -40,7 +40,10 @@ static void main_loop(void)
             goforward(&my_tank);
             break;
         case INPUT_SHOOT:
-            my_tank_shoot();
+            if (my_tank.nblts > 1) {
+                my_tank.nblts--;
+                my_tank_shoot();
+            }
             break;
         case INPUT_QUIT:
             return;
