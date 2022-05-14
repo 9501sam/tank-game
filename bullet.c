@@ -29,7 +29,7 @@ static bool bullets_move(bullet *blt)
     return true;
 }
 
-void *fire(void *arg)
+void *shoot(void *arg) // TODO
 {
     bullet *blt = (bullet *) arg;
     bool is_moved = true;
@@ -50,7 +50,7 @@ void *fire(void *arg)
     return NULL;
 }
 
-void fire_thread_create(tank *tk)
+void shoot_thread_create(tank *tk)
 {
     pthread_t tid;
     bullet *blt = (bullet *) malloc(sizeof(bullet));
@@ -61,5 +61,5 @@ void fire_thread_create(tank *tk)
         return;
     if (!bullets_move(blt))
         return;
-    pthread_create(&tid, NULL, fire, (void *) blt);
+    pthread_create(&tid, NULL, shoot, (void *) blt);
 }

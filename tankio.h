@@ -21,7 +21,7 @@
         exit(EXIT_FAILURE); \
     } while (0)
 
-#define MAX_USERS   10
+#define MAX_USERS   6
 #define MAX_FD      100
 #define MAX_BULLETS 100
 
@@ -68,8 +68,8 @@ typedef struct {
     DIRECTION dir;
 } bullet;
 
-void *fire(void *);
-void fire_thread_create(tank *tk);
+void *shoot(void *);
+void shoot_thread_create(tank *tk);
 
 ///*** ui ***///
 typedef enum {
@@ -77,7 +77,7 @@ typedef enum {
     INPUT_RIGHT,
     INPUT_UP,
     INPUT_DOWN,
-    INPUT_FIRE,
+    INPUT_SHOOT,
     INPUT_QUIT,
     INPUT_INVALID,
 } input_t;
@@ -89,8 +89,8 @@ void print_tank(const tank *);
 void erase_bullet(const bullet *);
 void print_bullet(const bullet *);
 void refresh_screen(void);
-void attron_mytk(void);
-void attroff_mytk(void);
+void attron_tank(int);
+void attroff_tank(int);
 input_t get_input(void);
 
 ///*** network ***///

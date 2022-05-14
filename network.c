@@ -9,8 +9,11 @@ void *recv_thread(void *arg)
         pthread_mutex_lock(&lock);
         switch (pkg.kind) {
         case NEW_TANK:
+            id = pkg.data.tk.id;
             add_enemy(&pkg.data.tk);
+            attron_tank(id);
             print_tank(&pkg.data.tk);
+            attroff_tank(id);
             refresh_screen();
             break;
         case TANK:
@@ -18,7 +21,9 @@ void *recv_thread(void *arg)
             tank oldtk = enemies[id];
             enemies[id] = pkg.data.tk;
             erase_tank(&oldtk);
+            attron_tank(id);
             print_tank(&enemies[id]);
+            attroff_tank(id);
             refresh_screen();
             break;
         case BULLET:
