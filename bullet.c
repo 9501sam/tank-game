@@ -1,50 +1,91 @@
 #include "tankio.h"
 
+static bool check_bullet(bullet *blt)
+{
+    if (blt->x < 1)
+        return false;
+    if (blt->x > MAP_WIDTH - 2)
+        return false;
+    if (blt->y < 1)
+        return false;
+    if (blt->y > MAP_HEIGHT - 2)
+        return false;
+    if (map[blt->y][blt->x] == my_tank.id) { // my_tank attacked
+        my_tank.hp--;
+        erase_tank_info(&my_tank);
+        attron_tank(my_tank.id);
+        print_tank_info(&my_tank);
+        attroff_tank(my_tank.id);
+        refresh_screen();
+        struct package pkg = {
+            .kind = ATTACKED,
+            .data.tk = my_tank,
+        };
+        if (send(client_sock, &pkg, sizeof(pkg), 0) == -1)
+            perror("send");
+        return false;
+    }
+    if (map[blt->y][blt->x] != BLOCK_EMPTY)
+        return false;
+    return true;
+}
+
 static bool bullets_move(bullet *blt)
 {
-    switch (blt->dir) {
+    bullet newblt = *blt;
+    switch (newblt.dir) {
     case LEFT:
-        if (blt->x - 1 < 1)
-            return false;
-        blt->x--;
+        newblt.x--;
         break;
     case RIGHT:
-        if (blt->x + 1 > MAP_WIDTH - 2)
-            return false;
-        blt->x++;
+        newblt.x++;
         break;
     case UP:
-        if (blt->y - 1 < 1)
-            return false;
-        blt->y--;
+        newblt.y--;
         break;
     case DOWN:
-        if (blt->y + 1 > MAP_HEIGHT - 2)
-            return false;
-        blt->y++;
+        newblt.y++;
         break;
     default:
         return false;
     }
+    blt->x = newblt.x;
+    blt->y = newblt.y;
     return true;
 }
 
-void *shoot(void *arg) // TODO
+void *shoot(void *arg)
 {
     bullet *blt = (bullet *) arg;
     bool is_moved = true;
+    if (!bullets_move(blt)) {
+        free(blt);
+        return NULL;
+    }
+    if (!bullets_move(blt)) {
+        free(blt);
+        return NULL;
+    }
     pthread_mutex_lock(&lock);
-    print_bullet(blt);
-    refresh_screen();
-    pthread_mutex_unlock(&lock);
-    while (is_moved) {
-        pthread_mutex_lock(&lock);
-        erase_bullet(blt);
-        is_moved = bullets_move(blt);
+    if ((is_moved = check_bullet(blt))) {
         print_bullet(blt);
         refresh_screen();
+    }
+    pthread_mutex_unlock(&lock);
+    if (!is_moved) {
+        free(blt);
+        return NULL;
+    }
+    while (is_moved) {
+        napms(BULLET_DELAY);
+        pthread_mutex_lock(&lock);
+        erase_bullet(blt);
+        bullets_move(blt);
+        is_moved = check_bullet(blt);
+        if (is_moved)
+            print_bullet(blt);
+        refresh_screen();
         pthread_mutex_unlock(&lock);
-        napms(12);
     }
     free(blt);
     return NULL;
@@ -57,9 +98,24 @@ void shoot_thread_create(tank *tk)
     blt->x = tk->x;
     blt->y = tk->y;
     blt->dir = tk->dir;
-    if (!bullets_move(blt))
-        return;
-    if (!bullets_move(blt))
-        return;
+    erase_tank_info(tk);
+    attron_tank(tk->id);
+    print_tank_info(tk);
+    attroff_tank(tk->id);
+    refresh_screen();
     pthread_create(&tid, NULL, shoot, (void *) blt);
+}
+
+void my_tank_shoot(void)
+{
+    if (my_tank.nblts < 1)
+        return;
+    struct package pkg = {
+        .kind = SHOOT,
+        .data.tk = my_tank,
+    };
+    if (send(client_sock, &pkg, sizeof(pkg), 0) == -1)
+        perror("send");
+    my_tank.nblts--;
+    shoot_thread_create(&my_tank);
 }

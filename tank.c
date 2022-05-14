@@ -67,7 +67,9 @@ bool goforward(tank *tk)
     erase_tank(tk);
     tk->x = newtk.x;
     tk->y = newtk.y;
+    attron_tank(tk->id);
     print_tank(tk);
+    attroff_tank(tk->id);
     refresh_screen();
     struct package pkg = {.kind = TANK, .data = {*tk}};
     if ((send(client_sock, &pkg, sizeof(pkg), 0)) < 0)
@@ -81,7 +83,9 @@ bool turn(tank *tk, DIRECTION dir)
         return false;
     erase_tank(tk);
     tk->dir = dir;
+    attron_tank(tk->id);
     print_tank(tk);
+    attroff_tank(tk->id);
     refresh_screen();
     struct package pkg = {.kind = TANK, .data.tk = *tk};
     if ((send(client_sock, &pkg, sizeof(pkg), 0)) < 0)

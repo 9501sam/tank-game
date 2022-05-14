@@ -59,12 +59,22 @@ void deinit_ui(void)
 {
     endwin();
 }
+
+void print_tank_info(const tank *tk)
+{
+    mvprintw(tk->id, 0, "player %d: (%d,%d), hp=%d, bullets=%d", tk->id + 1,
+            tk->x, tk->y, tk->hp, tk->nblts);
+}
+
+void erase_tank_info(const tank *tk)
+{
+    mvprintw(tk->id, 0, "                                                ");
+}
     
 void print_tank(const tank *tk)
 {
+    print_tank_info(tk);
     int id = tk->id;
-    mvprintw(id, 0, "player %d: (%d,%d), hp=%d, bullets=%d", id + 1,
-            tk->x, tk->y, tk->hp, tk->nblts);
     for (int i = -1; i <= 1; i++)
         for (int j = -1; j <= 1; j++) {
             map[tk->y + i][tk->x + j] = id;
@@ -75,7 +85,7 @@ void print_tank(const tank *tk)
 
 void erase_tank(const tank *tk)
 {
-    mvprintw(tk->id, 0, "                                                ");
+    erase_tank_info(tk);
     for (int i = -1; i <= 1; i++)
         for (int j = -1; j <= 1; j++) {
             map[tk->y + i][tk->x + j] = BLOCK_EMPTY;

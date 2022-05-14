@@ -26,7 +26,8 @@ void *recv_thread(void *arg)
             attroff_tank(id);
             refresh_screen();
             break;
-        case BULLET:
+        case SHOOT:
+            shoot_thread_create(&pkg.data.tk);
             break;
         case ATTACKED:
             break;

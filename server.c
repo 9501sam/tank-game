@@ -128,7 +128,7 @@ static void handle_data(int fd)
         FD_CLR(fd, &master);
         release_tank_id(fd);
     } else {                                                // 3. success got data from client
-                                                            // NEW_TANK, TANK, BULLET, ATTACKED or DIE
+                                                            // NEW_TANK, TANK, SHOOT, ATTACKED or DIE
         if (pkg.kind == DIE) {              // DIE
             release_tank_id(fd);
         } else if (pkg.kind == TANK) {      // TANK

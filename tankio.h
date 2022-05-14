@@ -21,22 +21,23 @@
         exit(EXIT_FAILURE); \
     } while (0)
 
-#define MAX_USERS   6
-#define MAX_FD      100
-#define MAX_BULLETS 100
+#define MAX_USERS    6
+#define MAX_FD       100
+#define MAX_BULLETS  100
 
-#define MAP_HEIGHT  16
-#define MAP_WIDTH   24
+#define MAP_HEIGHT   16
+#define MAP_WIDTH    24
 
-#define TANK_SIZE   3
-#define DEFAULT_HP  3
-#define NUM_BULLETS 3
+#define TANK_SIZE    3
+#define DEFAULT_HP   3
+#define NUM_BULLETS  100
+#define BULLET_DELAY 100
 
-#define BLOCK_EMPTY -1
-#define NOT_USED    -1
+#define BLOCK_EMPTY  -1
+#define NOT_USED     -1
 
-#define PAIR_MYTK   1
-#define COLOR_MYTK  COLOR_GREEN
+#define PAIR_MYTK    1
+#define COLOR_MYTK   COLOR_GREEN
 
 // direction
 typedef enum {
@@ -70,6 +71,7 @@ typedef struct {
 
 void *shoot(void *);
 void shoot_thread_create(tank *tk);
+void my_tank_shoot(void);
 
 ///*** ui ***///
 typedef enum {
@@ -85,6 +87,8 @@ typedef enum {
 void init_ui(void);
 void deinit_ui(void);
 void erase_tank(const tank *);
+void print_tank_info(const tank *);
+void erase_tank_info(const tank *);
 void print_tank(const tank *);
 void erase_bullet(const bullet *);
 void print_bullet(const bullet *);
@@ -95,10 +99,9 @@ input_t get_input(void);
 
 ///*** network ***///
 struct package {
-    enum {NEW_TANK, TANK, BULLET, ATTACKED, DIE} kind;
+    enum {NEW_TANK, TANK, SHOOT, ATTACKED, DIE} kind;
     union {
         tank   tk;
-        bullet blt;
         int8_t attacked_id;
         int8_t die_id;
     } data;

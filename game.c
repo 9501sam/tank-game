@@ -16,7 +16,6 @@ static void init_game(void)
 
 static void main_loop(void)
 {
-    int id = my_tank.id;
     input_t in;
     while (1) {
         in = get_input();
@@ -25,31 +24,23 @@ static void main_loop(void)
         pthread_mutex_lock(&lock);
         switch (in) {
         case INPUT_LEFT:
-            attron_tank(id);
             turn(&my_tank, LEFT);
             goforward(&my_tank);
-            attroff_tank(id);
             break;
         case INPUT_RIGHT:
-            attron_tank(id);
             turn(&my_tank, RIGHT);
             goforward(&my_tank);
-            attroff_tank(id);
             break;
         case INPUT_UP:
-            attron_tank(id);
             turn(&my_tank, UP);
             goforward(&my_tank);
-            attroff_tank(id);
             break;
         case INPUT_DOWN:
-            attron_tank(id);
             turn(&my_tank, DOWN);
             goforward(&my_tank);
-            attroff_tank(id);
             break;
         case INPUT_SHOOT:
-            shoot_thread_create(&my_tank);
+            my_tank_shoot();
             break;
         case INPUT_QUIT:
             return;
