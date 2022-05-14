@@ -33,6 +33,7 @@ void init_ui(void)
     initscr();
     curs_set(0);
     noecho();
+    nodelay(win_game, TRUE);
     start_color();
 
     int starty, startx, height, width;
@@ -133,6 +134,9 @@ input_t get_input(void)
     case ' ':
     case 'x':
         return INPUT_SHOOT;
+        break;
+    case 'z':
+        return INPUT_REFILL;
         break;
     case 'q':
     case 'Q':

@@ -36,6 +36,15 @@ void *recv_thread(void *arg)
             refresh_screen();
             shoot_thread_create(&pkg.data.tk);
             break;
+        case REFILL:
+            id = pkg.data.refill_id;
+            enemies[id].nblts = NUM_BULLETS;
+            attron_tank(id);
+            erase_tank_info(&enemies[id]);
+            print_tank_info(&enemies[id]);
+            attroff_tank(id);
+            refresh_screen();
+            break;
         case ATTACKED:
             id = pkg.data.attacked_id;
             enemies[id].hp--;

@@ -45,6 +45,9 @@ static void main_loop(void)
                 my_tank_shoot();
             }
             break;
+        case INPUT_REFILL:
+            my_tank_refill();
+            break;
         case INPUT_QUIT:
             return;
             break;

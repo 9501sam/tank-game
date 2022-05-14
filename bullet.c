@@ -11,23 +11,8 @@ static bool check_bullet(bullet *blt)
     if (blt->y > MAP_HEIGHT - 2)
         return false;
     if (map[blt->y][blt->x] == my_tank.id) { // my_tank attacked
-        if (my_tank.hp > 1) {
-            my_tank.hp--;
-            erase_tank_info(&my_tank);
-            attron_tank(my_tank.id);
-            print_tank_info(&my_tank);
-            attroff_tank(my_tank.id);
-            refresh_screen();
-            struct package pkg = {
-                .kind = ATTACKED,
-                .data.attacked_id = my_tank.id,
-            };
-            if (send(client_sock, &pkg, sizeof(pkg), 0) == -1)
-                perror("send");
-            return false;
-        } else {    // my_tank died
-            exit(EXIT_SUCCESS);
-        }
+        my_tank_attacked();
+        return false;
     }
     if (map[blt->y][blt->x] != BLOCK_EMPTY)
         return false;

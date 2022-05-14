@@ -23,15 +23,15 @@
 
 #define MAX_USERS    6
 #define MAX_FD       100
-#define MAX_BULLETS  100
 
 #define MAP_HEIGHT   16
 #define MAP_WIDTH    24
 
 #define TANK_SIZE    3
 #define DEFAULT_HP   3
-#define NUM_BULLETS  100
-#define BULLET_DELAY 100
+#define NUM_BULLETS  5
+#define BULLET_DELAY 30
+#define REFILL_DELAY 2000
 
 #define BLOCK_EMPTY  -1
 #define NOT_USED     -1
@@ -60,7 +60,8 @@ typedef struct {
 
 bool goforward(tank *);
 bool turn(tank *, DIRECTION);
-bool attacked(tank *);
+void my_tank_attacked();
+void my_tank_refill(void);
 
 ///*** bullet ***///
 typedef struct {
@@ -80,6 +81,7 @@ typedef enum {
     INPUT_UP,
     INPUT_DOWN,
     INPUT_SHOOT,
+    INPUT_REFILL,
     INPUT_QUIT,
     INPUT_INVALID,
 } input_t;
@@ -99,9 +101,10 @@ input_t get_input(void);
 
 ///*** network ***///
 struct package {
-    enum {NEW_TANK, TANK, SHOOT, ATTACKED, DIE} kind;
+    enum {NEW_TANK, TANK, SHOOT, REFILL, ATTACKED, DIE} kind;
     union {
         tank   tk;
+        int8_t refill_id;
         int8_t attacked_id;
         int8_t die_id;
     } data;

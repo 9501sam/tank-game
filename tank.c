@@ -93,7 +93,36 @@ bool turn(tank *tk, DIRECTION dir)
     return true;
 }
 
-bool attacked(tank *tk)
+void my_tank_attacked(void)
 {
-    return true;
+    if (my_tank.hp > 1) {
+        my_tank.hp--;
+        erase_tank_info(&my_tank);
+        attron_tank(my_tank.id);
+        print_tank_info(&my_tank);
+        attroff_tank(my_tank.id);
+        refresh_screen();
+        struct package pkg = {
+            .kind = ATTACKED,
+            .data.attacked_id = my_tank.id,
+        };
+        if (send(client_sock, &pkg, sizeof(pkg), 0) == -1)
+            perror("send");
+        return;
+    } else {    // my_tank died
+        exit(EXIT_SUCCESS);
+    }
+}
+
+void my_tank_refill(void)
+{
+    struct package pkg = {.kind = REFILL, .data.refill_id = my_tank.id};
+    my_tank.nblts = NUM_BULLETS;
+    erase_tank_info(&my_tank);
+    attron_tank(my_tank.id);
+    print_tank_info(&my_tank);
+    attroff_tank(my_tank.id);
+    refresh_screen();
+    if ((send(client_sock, &pkg, sizeof(pkg), 0)) < 0)
+        perror("my_tank_refill\n");
 }
