@@ -95,8 +95,6 @@ void print_tank(const tank *);
 void erase_bullet(const bullet *);
 void print_bullet(const bullet *);
 void refresh_screen(void);
-void attron_tank(int);
-void attroff_tank(int);
 input_t get_input(void);
 
 ///*** network ***///

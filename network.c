@@ -17,8 +17,6 @@ int recv_packet(int fd, struct packet *pkt)
     case SHOOT:
         // uint16_t x;
         pkt->data.tk.x = (((uint16_t) buffer[1]) << 8) | (uint16_t) buffer[2];
-        // pkt->data.tk.x = (uint16_t) buffer[2];
-
         // uint16_t y;
         pkt->data.tk.y = (((uint16_t) buffer[3]) << 8) | (uint16_t) buffer[4];
         // uint8_t dir;

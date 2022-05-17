@@ -67,9 +67,7 @@ bool goforward(tank *tk)
     erase_tank(tk);
     tk->x = newtk.x;
     tk->y = newtk.y;
-    attron_tank(tk->id);
     print_tank(tk);
-    attroff_tank(tk->id);
     refresh_screen();
     struct packet pkt = {.kind = TANK, .data = {*tk}};
     if ((send_packet(client_sock, &pkt)) < 0)
@@ -83,9 +81,7 @@ bool turn(tank *tk, DIRECTION dir)
         return false;
     erase_tank(tk);
     tk->dir = dir;
-    attron_tank(tk->id);
     print_tank(tk);
-    attroff_tank(tk->id);
     refresh_screen();
     struct packet pkt = {.kind = TANK, .data.tk = *tk};
     if ((send_packet(client_sock, &pkt)) < 0)
@@ -98,9 +94,7 @@ void my_tank_attacked(void)
     if (my_tank.hp > 1) {
         my_tank.hp--;
         erase_tank_info(&my_tank);
-        attron_tank(my_tank.id);
         print_tank_info(&my_tank);
-        attroff_tank(my_tank.id);
         refresh_screen();
         struct packet pkt = {
             .kind = ATTACKED,
@@ -119,9 +113,7 @@ void my_tank_refill(void)
     struct packet pkt = {.kind = REFILL, .data.id = my_tank.id};
     my_tank.nblts = NUM_BULLETS;
     erase_tank_info(&my_tank);
-    attron_tank(my_tank.id);
     print_tank_info(&my_tank);
-    attroff_tank(my_tank.id);
     refresh_screen();
     if ((send_packet(client_sock, &pkt)) < 0)
         perror("my_tank_refill\n");

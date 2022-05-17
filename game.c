@@ -85,9 +85,7 @@ static void *recv_thread(void *arg)
         case NEW_TANK:
             id = pkt.data.tk.id;
             add_enemy(&pkt.data.tk);
-            attron_tank(id);
             print_tank(&pkt.data.tk);
-            attroff_tank(id);
             refresh_screen();
             break;
         case TANK:
@@ -95,36 +93,28 @@ static void *recv_thread(void *arg)
             tank oldtk = enemies[id];
             enemies[id] = pkt.data.tk;
             erase_tank(&oldtk);
-            attron_tank(id);
             print_tank(&enemies[id]);
-            attroff_tank(id);
             refresh_screen();
             break;
         case SHOOT:
             id = pkt.data.tk.id;
             enemies[id] = pkt.data.tk;
-            attron_tank(id);
             erase_tank_info(&enemies[id]);
             print_tank_info(&enemies[id]);
-            attroff_tank(id);
             refresh_screen();
             shoot_thread_create(&pkt.data.tk);
             break;
         case REFILL:
             id = pkt.data.id;
             enemies[id].nblts = NUM_BULLETS;
-            attron_tank(id);
             erase_tank_info(&enemies[id]);
             print_tank_info(&enemies[id]);
-            attroff_tank(id);
             refresh_screen();
             break;
         case ATTACKED:
             id = pkt.data.id;
             enemies[id].hp--;
-            attron_tank(id);
             print_tank_info(&enemies[id]);
-            attroff_tank(id);
             refresh_screen();
             break;
         case DIE:

@@ -88,9 +88,7 @@ void shoot_thread_create(tank *tk)
     blt->y = tk->y;
     blt->dir = tk->dir;
     erase_tank_info(tk);
-    attron_tank(tk->id);
     print_tank_info(tk);
-    attroff_tank(tk->id);
     refresh_screen();
     pthread_create(&tid, NULL, shoot, (void *) blt);
 }

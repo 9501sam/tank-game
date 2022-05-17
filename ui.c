@@ -14,7 +14,7 @@
 
 WINDOW *win_game;
 
-void attron_tank(int id)
+static void attron_tank(int id)
 {
     int color_id = id + 1;
     init_pair(id, color_id, COLOR_BLACK);
@@ -22,7 +22,7 @@ void attron_tank(int id)
     attron(COLOR_PAIR(id));
 }
 
-void attroff_tank(int id)
+static void attroff_tank(int id)
 {
     wattroff(win_game, COLOR_PAIR(id));
     attroff(COLOR_PAIR(id));
@@ -44,9 +44,7 @@ void init_ui(void)
 
     win_game = newwin(height, width, starty, startx);
 
-    attron_tank(my_tank.id);
     print_tank(&my_tank);
-    attroff_tank(my_tank.id);
 
     box(win_game, 0, 0);
     refresh();
@@ -63,8 +61,11 @@ void deinit_ui(void)
 
 void print_tank_info(const tank *tk)
 {
+    int id = tk->id;
+    attron_tank(id);
     mvprintw(tk->id, 0, "player %d: (%d,%d), hp=%d, bullets=%d", tk->id + 1,
             tk->x, tk->y, tk->hp, tk->nblts);
+    attroff_tank(id);
 }
 
 void erase_tank_info(const tank *tk)
@@ -76,12 +77,14 @@ void print_tank(const tank *tk)
 {
     print_tank_info(tk);
     int id = tk->id;
+    attron_tank(id);
     for (int i = -1; i <= 1; i++)
         for (int j = -1; j <= 1; j++) {
             map[tk->y + i][tk->x + j] = id;
             if (tank_pattern[tk->dir][i + 1][j + 1])
                 PRINT_BLOCK(win_game, tk->y + i, tk->x + j);
         }
+    attroff_tank(id);
 }
 
 void erase_tank(const tank *tk)
