@@ -13,6 +13,7 @@
 #include <string.h>
 #include <time.h>
 #include <ncurses.h>
+#include <assert.h>
 
 
 #define err_exit(msg)       \
@@ -40,22 +41,21 @@
 #define COLOR_MYTK   COLOR_GREEN
 
 // direction
-typedef enum {
-    LEFT,
-    RIGHT,
-    UP,
-    DOWN,
-    NUM_DIR,
-} DIRECTION;
+typedef uint8_t DIRECTION;
+#define LEFT    (DIRECTION) 0
+#define RIGHT   (DIRECTION) 1
+#define UP      (DIRECTION) 2
+#define DOWN    (DIRECTION) 3
+#define NUM_DIR (DIRECTION) 4
 
 ///*** tank ***///
 typedef struct {
     uint16_t x;
     uint16_t y;
     DIRECTION dir;
-    int hp;
-    int nblts;
-    int id;
+    int8_t hp;
+    int8_t nblts;
+    int8_t id;
 } tank;
 
 bool goforward(tank *);
@@ -100,17 +100,24 @@ void attroff_tank(int);
 input_t get_input(void);
 
 ///*** network ***///
-struct package {
-    enum {NEW_TANK, TANK, SHOOT, REFILL, ATTACKED, DIE} kind;
+typedef uint8_t packet_kind;
+#define NEW_TANK (packet_kind) 0
+#define TANK     (packet_kind) 1
+#define SHOOT    (packet_kind) 2
+#define REFILL   (packet_kind) 3
+#define ATTACKED (packet_kind) 4
+#define DIE      (packet_kind) 5
+
+struct packet {
+    packet_kind kind;
     union {
         tank   tk;
-        int8_t refill_id;
-        int8_t attacked_id;
-        int8_t die_id;
+        int8_t id;
     } data;
 };
 
-void *recv_thread(void *);
+int recv_packet(int fd, struct packet *pkt);
+int send_packet(int fd, struct packet *pkt);
 
 ///*** game ***///
 /* these global variables should be sync using lock */

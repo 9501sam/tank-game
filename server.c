@@ -19,7 +19,6 @@ struct sockaddr_storage remoteaddr;
 socklen_t addrlen;
 
 int nbytes;
-struct package pkg;
 
 void close_all_fd(void)
 {
@@ -31,10 +30,10 @@ void close_all_fd(void)
 static void player_die(int fd)
 {
     int id = fd_to_id[fd];
-    struct package dietk_pkg = {.kind = DIE, .data.die_id = id};
+    struct packet dietk_pkt = {.kind = DIE, .data.id = id};
     for (int j = 0; j <= fdmax; j++) {
         if ((FD_ISSET(j, &master)) && (j != listenefd) && (j != fd))
-            if (send(j, &dietk_pkg, sizeof(dietk_pkg), 0) == -1)
+            if (send_packet(j, &dietk_pkt) == -1)
                 perror("send");
     }
 }
@@ -83,24 +82,24 @@ static void handle_new_connect(void)
         .nblts = NUM_BULLETS,
         .id = newid,
     };
-    struct package newtk_pkg = {
+    struct packet newtk_pkg = {
         .kind = NEW_TANK,
         .data.tk = newtk,
     };
     tanks[newid] = newtk;
     // talk to new player about new tank and 
     // its enemies
-    if (send(newfd, &newtk_pkg, sizeof(newtk_pkg), 0) == -1)
+    if (send_packet(newfd, &newtk_pkg) == -1)
         perror("handle_data(): send()");
     for (int i = 0; i <= fdmax; i++) {
         if ((FD_ISSET(i, &master)) && (i != listenefd) && (i != newfd)) {
             int id = fd_to_id[i];
             tank tk = tanks[id];
-            struct package pkg = {
+            struct packet pkg = {
                 .kind = NEW_TANK,
                 .data.tk = tk,
             }; 
-            if (send(newfd, &pkg, sizeof(pkg), 0) == -1)
+            if (send_packet(newfd, &pkg) == -1)
                 perror("send");
         }
     }
@@ -108,14 +107,15 @@ static void handle_new_connect(void)
     // new player
     for (int i = 0; i <= fdmax; i++) {
         if ((FD_ISSET(i, &master)) && (i != listenefd) && (i != newfd))
-            if (send(i, &newtk_pkg, sizeof(newtk_pkg), 0) == -1)
+            if (send_packet(i, &newtk_pkg) == -1)
                 perror("send");
     }
 }
 
 static void handle_data(int fd)
 {
-    if ((nbytes = recv(fd, &pkg, sizeof(pkg), 0)) <= 0) {
+    struct packet pkg;
+    if ((nbytes = recv_packet(fd, &pkg)) <= 0) {
         if (nbytes == 0) {                                  // 1. connection closed
             printf("server: socket %d hung up\n", fd);
             player_die(fd);
@@ -138,7 +138,7 @@ static void handle_data(int fd)
 
         for (int j = 0; j <= fdmax; j++) {
             if ((FD_ISSET(j, &master)) && (j != listenefd) && (j != fd))
-                if (send(j, &pkg, sizeof(pkg), 0) == -1)
+                if (send_packet(j, &pkg) == -1)
                     perror("send");
         }
     }

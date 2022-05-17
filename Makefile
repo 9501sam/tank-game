@@ -10,7 +10,7 @@ OBJS = server.o client.o network.o ui.o game.o tank.o bullet.o
 %.o: %.c
 	$(CC) -o $@ -c $^ $(CFLAGS)
 
-server: server.o
+server: server.o network.o
 	$(CC) -o $@ $^ $(CFLAGS)
 
 client: client.o network.o ui.o game.o tank.o bullet.o

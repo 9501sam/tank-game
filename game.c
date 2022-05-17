@@ -14,6 +14,22 @@ static void init_game(void)
         enemies[i].id = NOT_USED;
 }
 
+bool add_enemy(tank *tk)
+{
+    if (enemies[tk->id].id != -1)
+        return false;
+    enemies[tk->id] = *tk;
+    return true;
+}
+
+bool del_enemy(int id)
+{
+    if (enemies[id].id == -1)
+        return false;
+    enemies[id].id = -1;
+    return true;
+}
+
 static void main_loop(void)
 {
     input_t in;
@@ -58,20 +74,71 @@ static void main_loop(void)
     }
 }
 
-bool add_enemy(tank *tk)
+static void *recv_thread(void *arg)
 {
-    if (enemies[tk->id].id != -1)
-        return false;
-    enemies[tk->id] = *tk;
-    return true;
-}
+    struct packet pkt;
+    int id;
 
-bool del_enemy(int id)
-{
-    if (enemies[id].id == -1)
-        return false;
-    enemies[id].id = -1;
-    return true;
+    while (recv_packet(client_sock, &pkt)) {
+        pthread_mutex_lock(&lock);
+        switch (pkt.kind) {
+        case NEW_TANK:
+            id = pkt.data.tk.id;
+            add_enemy(&pkt.data.tk);
+            attron_tank(id);
+            print_tank(&pkt.data.tk);
+            attroff_tank(id);
+            refresh_screen();
+            break;
+        case TANK:
+            id = pkt.data.tk.id;
+            tank oldtk = enemies[id];
+            enemies[id] = pkt.data.tk;
+            erase_tank(&oldtk);
+            attron_tank(id);
+            print_tank(&enemies[id]);
+            attroff_tank(id);
+            refresh_screen();
+            break;
+        case SHOOT:
+            id = pkt.data.tk.id;
+            enemies[id] = pkt.data.tk;
+            attron_tank(id);
+            erase_tank_info(&enemies[id]);
+            print_tank_info(&enemies[id]);
+            attroff_tank(id);
+            refresh_screen();
+            shoot_thread_create(&pkt.data.tk);
+            break;
+        case REFILL:
+            id = pkt.data.id;
+            enemies[id].nblts = NUM_BULLETS;
+            attron_tank(id);
+            erase_tank_info(&enemies[id]);
+            print_tank_info(&enemies[id]);
+            attroff_tank(id);
+            refresh_screen();
+            break;
+        case ATTACKED:
+            id = pkt.data.id;
+            enemies[id].hp--;
+            attron_tank(id);
+            print_tank_info(&enemies[id]);
+            attroff_tank(id);
+            refresh_screen();
+            break;
+        case DIE:
+            id = pkt.data.id;
+            tank dietk = enemies[id];
+            if (dietk.id != NOT_USED) {
+                erase_tank(&dietk);
+                refresh_screen();
+            }
+            break;
+        }
+        pthread_mutex_unlock(&lock);
+    }
+    return NULL;
 }
 
 void start_game(void)

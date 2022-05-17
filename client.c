@@ -4,7 +4,7 @@ static int connect_to_serv(char *serv_addr, int port)
 {
     int sockfd;
     struct sockaddr_in server;
-    struct package pkg;
+    struct packet pkt;
 
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0)
@@ -17,11 +17,11 @@ static int connect_to_serv(char *serv_addr, int port)
     if ((connect(sockfd, (struct sockaddr *)&server, sizeof(server))) < 0)
         err_exit("err: connect_to_serv\n");
     // get new tank for my_tank
-    if ((recv(sockfd, &pkg, sizeof(pkg), 0)) == -1)
+    if ((recv_packet(sockfd, &pkt)) == -1)
         err_exit("connect_to_serv\n");
-    if (pkg.kind != NEW_TANK)
+    if (pkt.kind != NEW_TANK)
         err_exit("connect_to_serv\n");
-    my_tank = pkg.data.tk;
+    my_tank = pkt.data.tk;
     printf("%d\n", sockfd);
     return sockfd;
 }

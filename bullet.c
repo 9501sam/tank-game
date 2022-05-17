@@ -97,11 +97,11 @@ void shoot_thread_create(tank *tk)
 
 void my_tank_shoot(void)
 {
-    struct package pkg = {
+    struct packet pkt = {
         .kind = SHOOT,
         .data.tk = my_tank,
     };
-    if (send(client_sock, &pkg, sizeof(pkg), 0) == -1)
+    if (send_packet(client_sock, &pkt) == -1)
         perror("send");
     shoot_thread_create(&my_tank);
 }

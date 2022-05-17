@@ -71,8 +71,8 @@ bool goforward(tank *tk)
     print_tank(tk);
     attroff_tank(tk->id);
     refresh_screen();
-    struct package pkg = {.kind = TANK, .data = {*tk}};
-    if ((send(client_sock, &pkg, sizeof(pkg), 0)) < 0)
+    struct packet pkt = {.kind = TANK, .data = {*tk}};
+    if ((send_packet(client_sock, &pkt)) < 0)
         perror("goforward\n");
     return true;
 }
@@ -87,8 +87,8 @@ bool turn(tank *tk, DIRECTION dir)
     print_tank(tk);
     attroff_tank(tk->id);
     refresh_screen();
-    struct package pkg = {.kind = TANK, .data.tk = *tk};
-    if ((send(client_sock, &pkg, sizeof(pkg), 0)) < 0)
+    struct packet pkt = {.kind = TANK, .data.tk = *tk};
+    if ((send_packet(client_sock, &pkt)) < 0)
         perror("turn\n");
     return true;
 }
@@ -102,11 +102,11 @@ void my_tank_attacked(void)
         print_tank_info(&my_tank);
         attroff_tank(my_tank.id);
         refresh_screen();
-        struct package pkg = {
+        struct packet pkt = {
             .kind = ATTACKED,
-            .data.attacked_id = my_tank.id,
+            .data.id = my_tank.id,
         };
-        if (send(client_sock, &pkg, sizeof(pkg), 0) == -1)
+        if (send_packet(client_sock, &pkt) == -1)
             perror("send");
         return;
     } else {    // my_tank died
@@ -116,13 +116,13 @@ void my_tank_attacked(void)
 
 void my_tank_refill(void)
 {
-    struct package pkg = {.kind = REFILL, .data.refill_id = my_tank.id};
+    struct packet pkt = {.kind = REFILL, .data.id = my_tank.id};
     my_tank.nblts = NUM_BULLETS;
     erase_tank_info(&my_tank);
     attron_tank(my_tank.id);
     print_tank_info(&my_tank);
     attroff_tank(my_tank.id);
     refresh_screen();
-    if ((send(client_sock, &pkg, sizeof(pkg), 0)) < 0)
+    if ((send_packet(client_sock, &pkt)) < 0)
         perror("my_tank_refill\n");
 }
