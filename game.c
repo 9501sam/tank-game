@@ -16,7 +16,7 @@ static void init_game(void)
 
 bool add_enemy(tank *tk)
 {
-    if (enemies[tk->id].id != -1)
+    if (enemies[tk->id].id != NOT_USED)
         return false;
     enemies[tk->id] = *tk;
     return true;
@@ -24,9 +24,9 @@ bool add_enemy(tank *tk)
 
 bool del_enemy(int id)
 {
-    if (enemies[id].id == -1)
+    if (enemies[id].id == NOT_USED)
         return false;
-    enemies[id].id = -1;
+    enemies[id].id = NOT_USED;
     return true;
 }
 
@@ -124,6 +124,7 @@ static void *recv_thread(void *arg)
                 erase_tank(&dietk);
                 refresh_screen();
             }
+            del_enemy(id);
             break;
         }
         pthread_mutex_unlock(&lock);
