@@ -16,16 +16,18 @@ WINDOW *win_game;
 
 static void attron_tank(int id)
 {
-    int color_id = id + 1;
-    init_pair(id, color_id, COLOR_BLACK);
-    wattron(win_game, COLOR_PAIR(id));
-    attron(COLOR_PAIR(id));
+    int pair_id = id + 1;
+    int color_id = id + 2;
+    init_pair(pair_id, color_id, COLOR_BLACK);
+    wattron(win_game, COLOR_PAIR(pair_id));
+    attron(COLOR_PAIR(pair_id));
 }
 
 static void attroff_tank(int id)
 {
-    wattroff(win_game, COLOR_PAIR(id));
-    attroff(COLOR_PAIR(id));
+    int pair_id = id + 1;
+    wattroff(win_game, COLOR_PAIR(pair_id));
+    attroff(COLOR_PAIR(pair_id));
 }
 
 void init_ui(void)
@@ -44,9 +46,9 @@ void init_ui(void)
 
     win_game = newwin(height, width, starty, startx);
 
+    print_all_walls();
     print_tank(&my_tank);
 
-    box(win_game, 0, 0);
     refresh();
     wrefresh(win_game);
 
@@ -106,6 +108,16 @@ void print_bullet(const bullet *blt)
 void erase_bullet(const bullet *blt)
 {
     ERASE_BLOCK(win_game, blt->y, blt->x);
+}
+
+void print_all_walls(void)
+{
+    for (int i = 1; i < MAP_HEIGHT - 1; i++)
+        for (int j = 1; j < MAP_WIDTH - 1; j++)
+            if (map[i][j] == BLOCK_WALL) {
+                PRINT_BLOCK(win_game, i, j);
+            }
+    box(win_game, 0, 0);
 }
 
 void refresh_screen(void)

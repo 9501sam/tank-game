@@ -75,8 +75,8 @@ static void handle_new_connect(void)
               newfd, newid);
 
     tank newtk = {
-        .x = 10,
-        .y = 10,
+        .x = 20,
+        .y = 15,
         .dir = UP,
         .hp = DEFAULT_HP,
         .nblts = NUM_BULLETS,

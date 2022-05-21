@@ -2,14 +2,6 @@
 
 static bool check_bullet(bullet *blt)
 {
-    if (blt->x < 1)
-        return false;
-    if (blt->x > MAP_WIDTH - 2)
-        return false;
-    if (blt->y < 1)
-        return false;
-    if (blt->y > MAP_HEIGHT - 2)
-        return false;
     if (map[blt->y][blt->x] == my_tank.id) { // my_tank attacked
         my_tank_attacked();
         return false;

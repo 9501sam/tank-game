@@ -27,14 +27,6 @@ static bool check_tank(tank *tk)
 {
     int x = tk->x;
     int y = tk->y;
-    if (x < 2)
-        return false;
-    if (x > MAP_WIDTH - 3)
-        return false;
-    if (y < 2)
-        return false;
-    if (y > MAP_HEIGHT - 3)
-        return false;
     for (int i = -1; i <= 1; i++)
         for (int j = -1; j <= 1; j++)
             if ((map[y + i][x + j] != BLOCK_EMPTY) &&
