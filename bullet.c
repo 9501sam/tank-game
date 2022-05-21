@@ -45,38 +45,34 @@ static bool bullets_move(bullet *blt)
 
 void *shoot(void *arg)
 {
-    bullet *blt = (bullet *) arg;
+    pthread_detach(pthread_self());
+    bullet blt = *(bullet *) arg;
+    free(arg);
     bool is_moved = true;
-    if (!bullets_move(blt)) {
-        free(blt);
+    if (!bullets_move(&blt)) {
         return NULL;
     }
-    if (!bullets_move(blt)) {
-        free(blt);
+    if (!bullets_move(&blt))
         return NULL;
-    }
     pthread_mutex_lock(&lock);
-    if ((is_moved = check_bullet(blt))) {
-        print_bullet(blt);
+    if ((is_moved = check_bullet(&blt))) {
+        print_bullet(&blt);
         refresh_screen();
     }
     pthread_mutex_unlock(&lock);
-    if (!is_moved) {
-        free(blt);
+    if (!is_moved)
         return NULL;
-    }
     while (is_moved) {
         napms(BULLET_DELAY);
         pthread_mutex_lock(&lock);
-        erase_bullet(blt);
-        bullets_move(blt);
-        is_moved = check_bullet(blt);
+        erase_bullet(&blt);
+        bullets_move(&blt);
+        is_moved = check_bullet(&blt);
         if (is_moved)
-            print_bullet(blt);
+            print_bullet(&blt);
         refresh_screen();
         pthread_mutex_unlock(&lock);
     }
-    free(blt);
     return NULL;
 }
 
