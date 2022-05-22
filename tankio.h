@@ -25,7 +25,7 @@
 #define MAX_USERS    6
 #define MAX_FD       100
 
-#define MAP_HEIGHT   30
+#define MAP_HEIGHT   31
 #define MAP_WIDTH    40
 
 #define TANK_SIZE    3

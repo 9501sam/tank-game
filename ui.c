@@ -112,12 +112,12 @@ void erase_bullet(const bullet *blt)
 
 void print_all_walls(void)
 {
-    for (int i = 1; i < MAP_HEIGHT - 1; i++)
-        for (int j = 1; j < MAP_WIDTH - 1; j++)
+    for (int i = 0; i < MAP_HEIGHT; i++)
+        for (int j = 0; j < MAP_WIDTH; j++)
             if (map[i][j] == BLOCK_WALL) {
                 PRINT_BLOCK(win_game, i, j);
             }
-    box(win_game, 0, 0);
+    // box(win_game, 0, 0);
 }
 
 void refresh_screen(void)
