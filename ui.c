@@ -1,23 +1,23 @@
 #include "tankio.h"
 
-#define PRINT_BLOCK(window, pos_y, pos_x)                         \
-    do {                                                          \
-        mvwaddch((window), (pos_y), ((pos_x) << 1), ACS_CKBOARD); \
-        waddch((window), ACS_CKBOARD);                            \
+#define PRINT_CH(window, pos_y, pos_x, ch)                 \
+    do {                                                   \
+        mvwaddch((window), (pos_y), ((pos_x) << 1), (ch)); \
+        waddch((window), (ch));                            \
     } while (0)
 
-#define ERASE_BLOCK(window, pos_y, pos_x)                 \
-    do {                                                  \
-        mvwaddch((window), (pos_y), ((pos_x) << 1), ' '); \
-        waddch((window), ' ');                            \
-    } while (0)
+#define PRINT_BLOCK(window, pos_y, pos_x) \
+    PRINT_CH(window, pos_y, pos_x, ACS_CKBOARD)
+
+#define ERASE_BLOCK(window, pos_y, pos_x) \
+    PRINT_CH(window, pos_y, pos_x, ' ')
 
 WINDOW *win_game;
 
 static void attron_tank(int id)
 {
     int pair_id = id + 1;
-    int color_id = id + 2;
+    int color_id = id + 1;
     init_pair(pair_id, color_id, COLOR_BLACK);
     wattron(win_game, COLOR_PAIR(pair_id));
     attron(COLOR_PAIR(pair_id));
