@@ -1,6 +1,6 @@
 #include "tankio.h"
 
-#define BUF_SIZE 16
+#define BUF_SIZE 9
 
 int recv_packet(int fd, struct packet *pkt)
 {
@@ -63,14 +63,16 @@ int send_packet(int fd, struct packet *pkt)
         buffer[7] = pkt->data.tk.nblts;
         // int8_t id;
         buffer[8] = pkt->data.tk.id;
+        return send(fd, buffer, sizeof(buffer), 0);
         break;
     case REFILL:
     case ATTACKED:
     case DIE:
         buffer[1] = pkt->data.id;
+        return send(fd, buffer, 2 * sizeof(char), 0);
         break;
     default:
         return -1;
     }
-    return send(fd, buffer, sizeof(buffer), 0);
+    return -1;
 }
