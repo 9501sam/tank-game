@@ -3,6 +3,7 @@
 static int connect_to_serv(char *serv_addr, int port)
 {
     int sockfd;
+    int nbytes;
     struct sockaddr_in server;
     struct packet pkt;
 
@@ -17,8 +18,10 @@ static int connect_to_serv(char *serv_addr, int port)
     if ((connect(sockfd, (struct sockaddr *)&server, sizeof(server))) < 0)
         err_exit("err: connect_to_serv\n");
     // get new tank for my_tank
-    if ((recv_packet(sockfd, &pkt)) == -1)
+    if ((nbytes = recv_packet(sockfd, &pkt)) == -1)
         err_exit("connect_to_serv\n");
+    if (nbytes == 0)
+        err_exit("game room is full\n");
     if (pkt.kind != NEW_TANK)
         err_exit("connect_to_serv\n");
     my_tank = pkt.data.tk;

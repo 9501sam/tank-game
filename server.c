@@ -19,6 +19,7 @@ struct sockaddr_storage remoteaddr;
 socklen_t addrlen;
 
 int nbytes;
+int num_users = 0;
 
 void close_all_fd(void)
 {
@@ -63,7 +64,11 @@ static void handle_new_connect(void)
             &addrlen);
     if (newfd == -1) {
         perror("accept");
+    } else if (num_users + 1 > MAX_USERS) {
+        close(newfd);
+        return;
     } else {
+        num_users++;
         FD_SET(newfd, &master);
         fdmax = MAX(fdmax, newfd);
     }
