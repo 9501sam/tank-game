@@ -111,9 +111,11 @@ static void main_loop(void)
 static void *recv_thread(void *arg)
 {
     struct packet pkt;
-    int id;
+    int id, nbytes;
 
-    while (recv_packet(client_sock, &pkt)) {
+    while (1) {
+        if ((nbytes = recv_packet(client_sock, &pkt)) <= 0)
+            exit(EXIT_SUCCESS);
         pthread_mutex_lock(&lock);
         switch (pkt.kind) {
         case NEW_TANK:
