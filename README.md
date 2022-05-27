@@ -1,5 +1,6 @@
 # Tank Game
 Tank Game is a multi user shooting game made in C.
+![Screenshot](./image/Screenshot.png)
 
 ## Dependencies
 * Debian based distro:
