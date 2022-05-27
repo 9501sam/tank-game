@@ -31,7 +31,7 @@
 #define TANK_SIZE    3
 #define DEFAULT_HP   3
 #define NUM_BULLETS  5
-#define BULLET_DELAY 30
+#define BULLET_DELAY 30000000
 #define REFILL_DELAY 2000
 
 #define BLOCK_EMPTY  -1

@@ -37,6 +37,7 @@ static bool bullets_move(bullet *blt)
 
 void *shoot(void *arg)
 {
+    struct timespec rem, req = {.tv_sec = 0, .tv_nsec = BULLET_DELAY};
     pthread_detach(pthread_self());
     bullet blt = *(bullet *) arg;
     free(arg);
@@ -55,7 +56,7 @@ void *shoot(void *arg)
     if (!is_moved)
         return NULL;
     while (is_moved) {
-        napms(BULLET_DELAY);
+        nanosleep(&req, &rem);
         pthread_mutex_lock(&lock);
         erase_bullet(&blt);
         bullets_move(&blt);
