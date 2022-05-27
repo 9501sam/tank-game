@@ -37,6 +37,7 @@ static void player_die(int fd)
             if (send_packet(j, &dietk_pkt) == -1)
                 perror("send");
     }
+    num_users--;
 }
 
 static void assign_tank_id(const int newfd)
