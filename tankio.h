@@ -12,9 +12,7 @@
 #include <pthread.h>
 #include <string.h>
 #include <time.h>
-#include <ncurses.h>
 #include <assert.h>
-
 
 #define err_exit(msg)       \
     do {                    \

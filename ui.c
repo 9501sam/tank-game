@@ -1,3 +1,5 @@
+#include <ncurses.h>
+
 #include "tankio.h"
 
 #define PRINT_CH(window, pos_y, pos_x, ch)                 \
