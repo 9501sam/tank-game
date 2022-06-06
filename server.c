@@ -11,7 +11,7 @@ fd_set master;
 fd_set read_fds;
 int fdmax;
 
-int listenefd;
+int listenfd;
 int newfd;
 int port;
 struct sockaddr_in servaddr;
@@ -33,7 +33,7 @@ static void player_die(int fd)
     int id = fd_to_id[fd];
     struct packet dietk_pkt = {.kind = DIE, .data.id = id};
     for (int j = 0; j <= fdmax; j++) {
-        if ((FD_ISSET(j, &master)) && (j != listenefd) && (j != fd))
+        if ((FD_ISSET(j, &master)) && (j != listenfd) && (j != fd))
             if (send_packet(j, &dietk_pkt) == -1)
                 perror("send");
     }
@@ -61,7 +61,7 @@ static void handle_new_connect(void)
 {
     int newid;
     addrlen = sizeof(remoteaddr);
-    newfd = accept(listenefd, (struct sockaddr *)&remoteaddr,
+    newfd = accept(listenfd, (struct sockaddr *)&remoteaddr,
             &addrlen);
     if (newfd == -1) {
         perror("accept");
@@ -98,7 +98,7 @@ static void handle_new_connect(void)
     if (send_packet(newfd, &newtk_pkg) == -1)
         perror("handle_data(): send()");
     for (int i = 0; i <= fdmax; i++) {
-        if ((FD_ISSET(i, &master)) && (i != listenefd) && (i != newfd)) {
+        if ((FD_ISSET(i, &master)) && (i != listenfd) && (i != newfd)) {
             int id = fd_to_id[i];
             tank tk = tanks[id];
             struct packet pkg = {
@@ -112,7 +112,7 @@ static void handle_new_connect(void)
     // talk to all the other players about the 
     // new player
     for (int i = 0; i <= fdmax; i++) {
-        if ((FD_ISSET(i, &master)) && (i != listenefd) && (i != newfd))
+        if ((FD_ISSET(i, &master)) && (i != listenfd) && (i != newfd))
             if (send_packet(i, &newtk_pkg) == -1)
                 perror("send");
     }
@@ -143,11 +143,21 @@ static void handle_data(int fd)
         }
 
         for (int j = 0; j <= fdmax; j++) {
-            if ((FD_ISSET(j, &master)) && (j != listenefd) && (j != fd))
+            if ((FD_ISSET(j, &master)) && (j != listenfd) && (j != fd))
                 if (send_packet(j, &pkg) == -1)
                     perror("send");
         }
     }
+}
+
+// get sockaddr, IPv4 or IPv6:
+void *get_in_addr(struct sockaddr *sa)
+{
+	if (sa->sa_family == AF_INET) {
+		return &(((struct sockaddr_in*)sa)->sin_addr);
+	}
+
+	return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
 int main(int argc, char **argv)
@@ -155,7 +165,8 @@ int main(int argc, char **argv)
     if (argc < 2)
         err_exit("Usage: server <Port>\n");
 
-    port = atoi(argv[1]);
+    char *portstr = argv[1];
+    port = atoi(portstr);
 
     memset(id_to_fd, NOT_USED, sizeof(id_to_fd));
     memset(fd_to_id, NOT_USED, sizeof(fd_to_id));
@@ -163,21 +174,56 @@ int main(int argc, char **argv)
     if (atexit(close_all_fd))
         err_exit("atexit");
 
-    listenefd = socket(AF_INET, SOCK_STREAM, 0);
-    if (listenefd < 0)
-        err_exit("error: server listenefd\n");
-    bzero(&servaddr, sizeof(servaddr));
-    servaddr.sin_family = AF_INET;
-    servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    servaddr.sin_port = htons(port);
-    bind(listenefd, (struct sockaddr *) &servaddr, sizeof(servaddr));
-    listen(listenefd, 5);
+    int yes;
+    int rv;
+    struct addrinfo hints, *ai, *p;
+
+    // get us a socket and bind it
+    memset(&hints, 0, sizeof hints);
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = AI_PASSIVE;
+    if ((rv = getaddrinfo(NULL, portstr, &hints, &ai)) != 0) {
+        fprintf(stderr, "selectserver: %s\n", gai_strerror(rv));
+        exit(1);
+    }
+
+    for (p = ai; p != NULL; p = p->ai_next) {
+        listenfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
+        if (listenfd < 0) {
+            continue;
+        }
+
+        // lose the pesky "address already in use" error message
+        setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
+
+        if (bind(listenfd, p->ai_addr, p->ai_addrlen) < 0) {
+            close(listenfd);
+            continue;
+        }
+
+        break;
+    }
+
+    // if we got here, it means we didn't get bound
+    if (p == NULL) {
+        fprintf(stderr, "selectserver: failed to bind\n");
+        exit(2);
+    }
+
+	freeaddrinfo(ai); // all done with this
+
+    // listen
+    if (listen(listenfd, 10) == -1) {
+        perror("listen");
+        exit(3);
+    }
 
     FD_ZERO(&master);
     FD_ZERO(&read_fds);
 
-    FD_SET(listenefd, &master);
-    fdmax = listenefd;
+    FD_SET(listenfd, &master);
+    fdmax = listenfd;
     
     while (1) {
         read_fds = master;
@@ -185,7 +231,7 @@ int main(int argc, char **argv)
             err_exit("error: select()\n");
         for (int i = 0; i <= fdmax; i++) {
             if (FD_ISSET(i, &read_fds)) { ///*** we got one ***///
-                if (i == listenefd) {    /* handle new connections */
+                if (i == listenfd) {    /* handle new connections */
                     handle_new_connect();
                 } else {                /* handle data from a client */
                     handle_data(i);

@@ -14,7 +14,7 @@
 #include <time.h>
 #include <ncurses.h>
 #include <assert.h>
-
+#include <netdb.h>
 
 #define err_exit(msg)       \
     do {                    \
