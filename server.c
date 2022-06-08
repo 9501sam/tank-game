@@ -1,6 +1,8 @@
 #include "tankio.h"
 
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
+#define _ BLOCK_EMPTY
+#define W BLOCK_WALL
 
 int id_to_fd[MAX_USERS];
 int fd_to_id[MAX_FD];
@@ -57,6 +59,67 @@ static void release_tank_id(const int fd)
     fd_to_id[fd] = NOT_USED;
 }
 
+static void get_empty_yx(int *y, int *x)
+{
+    int map[MAP_HEIGHT][MAP_WIDTH] = {
+        {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,},
+        {W,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,W,},
+        {W,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,W,},
+        {W,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,W,},
+        {W,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,W,},
+        {W,_,_,_,_,W,_,_,_,_,_,_,_,W,W,W,W,W,W,W,W,W,W,W,W,W,W,_,_,_,_,_,_,_,W,_,_,_,_,W,},
+        {W,_,_,_,_,W,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,W,_,_,_,_,W,},
+        {W,_,_,_,_,W,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,W,_,_,_,_,W,},
+        {W,_,_,_,_,W,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,W,_,_,_,_,W,},
+        {W,_,_,_,_,W,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,W,_,_,_,_,W,},
+        {W,_,_,_,_,W,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,W,_,_,_,_,W,},
+        {W,_,_,_,_,W,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,W,_,_,_,_,W,},
+        {W,_,_,_,_,W,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,W,_,_,_,_,W,},
+        {W,_,_,_,_,W,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,W,_,_,_,_,W,},
+        {W,_,_,_,_,W,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,W,_,_,_,_,W,},
+        {W,_,_,_,_,W,W,W,W,W,W,W,W,W,W,_,_,_,_,_,_,_,_,_,_,W,W,W,W,W,W,W,W,W,W,_,_,_,_,W,},
+        {W,_,_,_,_,W,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,W,_,_,_,_,W,},
+        {W,_,_,_,_,W,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,W,_,_,_,_,W,},
+        {W,_,_,_,_,W,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,W,_,_,_,_,W,},
+        {W,_,_,_,_,W,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,W,_,_,_,_,W,},
+        {W,_,_,_,_,W,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,W,_,_,_,_,W,},
+        {W,_,_,_,_,W,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,W,_,_,_,_,W,},
+        {W,_,_,_,_,W,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,W,_,_,_,_,W,},
+        {W,_,_,_,_,W,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,W,_,_,_,_,W,},
+        {W,_,_,_,_,W,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,W,_,_,_,_,W,},
+        {W,_,_,_,_,W,_,_,_,_,_,_,_,W,W,W,W,W,W,W,W,W,W,W,W,W,W,_,_,_,_,_,_,_,W,_,_,_,_,W,},
+        {W,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,W,},
+        {W,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,W,},
+        {W,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,W,},
+        {W,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,W,},
+        {W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,W,},
+    };
+    for (int id = 0; id < MAX_USERS; id++)
+        if (id_to_fd[id] != NOT_USED) {
+            int r = tanks[id].y;
+            int c = tanks[id].x;
+            for (int i = -1; i <= 1; i++)
+                for (int j = -1; j <= 1; j++)
+                    map[r + i][c + j] = id;
+        }
+    while (1) {
+        *y = rand() % (MAP_HEIGHT - 4) + 2;
+        *x = rand() % (MAP_WIDTH - 4) + 2;
+        bool is_empty = true;
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++)
+                if (map[*y + i][*x + j] != BLOCK_EMPTY) {
+                    is_empty = false;
+                    break;
+                }
+            if (!is_empty)
+                break;
+        }
+        if (is_empty)
+            break;
+    }
+}
+
 static void handle_new_connect(void)
 {
     int newid;
@@ -74,15 +137,17 @@ static void handle_new_connect(void)
         fdmax = MAX(fdmax, newfd);
     }
 
+    int y, x;
+    get_empty_yx(&y, &x);
     assign_tank_id(newfd);
     newid = fd_to_id[newfd];
     printf("selectserver: new connection:"
             "fd=%d, id=%d\n",
-              newfd, newid);
+            newfd, newid);
 
     tank newtk = {
-        .x = 20,
-        .y = 15,
+        .x = x,
+        .y = y,
         .dir = UP,
         .hp = DEFAULT_HP,
         .nblts = NUM_BULLETS,
@@ -153,11 +218,11 @@ static void handle_data(int fd)
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa)
 {
-	if (sa->sa_family == AF_INET) {
-		return &(((struct sockaddr_in*)sa)->sin_addr);
-	}
+    if (sa->sa_family == AF_INET) {
+        return &(((struct sockaddr_in*)sa)->sin_addr);
+    }
 
-	return &(((struct sockaddr_in6*)sa)->sin6_addr);
+    return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
 int main(int argc, char **argv)
@@ -173,6 +238,8 @@ int main(int argc, char **argv)
 
     if (atexit(close_all_fd))
         err_exit("atexit");
+
+    srand(time(NULL));
 
     int yes;
     int rv;
@@ -211,7 +278,7 @@ int main(int argc, char **argv)
         exit(2);
     }
 
-	freeaddrinfo(ai); // all done with this
+    freeaddrinfo(ai); // all done with this
 
     // listen
     if (listen(listenfd, 10) == -1) {
@@ -224,7 +291,7 @@ int main(int argc, char **argv)
 
     FD_SET(listenfd, &master);
     fdmax = listenfd;
-    
+
     while (1) {
         read_fds = master;
         if (select(fdmax + 1, &read_fds, NULL, NULL, NULL) == -1) // block here
