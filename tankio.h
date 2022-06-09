@@ -105,7 +105,7 @@ typedef struct {
 } bullet;
 
 void *shoot(void *);
-void shoot_thread_create(tank *tk);
+void shoot_thread_create(int id);
 void my_tank_shoot(void);
 
 ///*** ui ***///

@@ -98,12 +98,11 @@ static void *recv_thread(void *arg)
             refresh_screen();
             break;
         case SHOOT:
-            id = pkt.data.tk.id;
-            enemies[id] = pkt.data.tk;
+            id = pkt.data.id;
             erase_tank_info(&enemies[id]);
             print_tank_info(&enemies[id]);
             refresh_screen();
-            shoot_thread_create(&pkt.data.tk);
+            shoot_thread_create(id);
             break;
         case REFILL:
             id = pkt.data.id;

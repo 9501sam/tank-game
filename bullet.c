@@ -37,10 +37,17 @@ static bool bullets_move(bullet *blt)
 
 void *shoot(void *arg)
 {
-    struct timespec rem, req = {.tv_sec = 0, .tv_nsec = BULLET_DELAY};
     pthread_detach(pthread_self());
-    bullet blt = *(bullet *) arg;
+
+    int id = *(int *) arg;
     free(arg);
+    tank *tk = NULL;
+    if (id == my_tank.id)
+        tk = &my_tank;
+    else
+        tk = &enemies[id];
+    bullet blt = {.x = tk->x, .y = tk->y, .dir = tk->dir};
+    struct timespec rem, req = {.tv_sec = 0, .tv_nsec = BULLET_DELAY};
     bool is_moved = true;
     if (!bullets_move(&blt)) {
         return NULL;
@@ -69,26 +76,30 @@ void *shoot(void *arg)
     return NULL;
 }
 
-void shoot_thread_create(tank *tk)
+void shoot_thread_create(int id)
 {
     pthread_t tid;
-    bullet *blt = (bullet *) malloc(sizeof(bullet));
-    blt->x = tk->x;
-    blt->y = tk->y;
-    blt->dir = tk->dir;
+    tank *tk = NULL;
+    if (id == my_tank.id)
+        tk = &my_tank;
+    else
+        tk = &enemies[id];
     erase_tank_info(tk);
     print_tank_info(tk);
     refresh_screen();
-    pthread_create(&tid, NULL, shoot, (void *) blt);
+
+    int *arg = malloc(sizeof(int));
+    *arg = id;
+    pthread_create(&tid, NULL, shoot, (void *) arg);
 }
 
 void my_tank_shoot(void)
 {
     struct packet pkt = {
         .kind = SHOOT,
-        .data.tk = my_tank,
+        .data.id = my_tank.id,
     };
     if (send_packet(client_sock, &pkt) == -1)
         perror("send");
-    shoot_thread_create(&my_tank);
+    shoot_thread_create(my_tank.id);
 }

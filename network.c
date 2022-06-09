@@ -14,7 +14,6 @@ int recv_packet(int fd, struct packet *pkt)
     switch (k) {
     case NEW_TANK:
     case TANK:
-    case SHOOT:
         // uint16_t x;
         pkt->data.tk.x = (((uint16_t) buffer[1]) << 8) | (uint16_t) buffer[2];
         // uint16_t y;
@@ -28,6 +27,7 @@ int recv_packet(int fd, struct packet *pkt)
         // int8_t id;
         pkt->data.tk.id = buffer[8];
         break;
+    case SHOOT:
     case REFILL:
     case ATTACKED:
     case DIE:
@@ -48,7 +48,6 @@ int send_packet(int fd, struct packet *pkt)
     switch (k) {
     case NEW_TANK:
     case TANK:
-    case SHOOT:
         // uint16_t x;
         buffer[1] = pkt->data.tk.x >> 8;
         buffer[2] = pkt->data.tk.x;
@@ -65,6 +64,7 @@ int send_packet(int fd, struct packet *pkt)
         buffer[8] = pkt->data.tk.id;
         return send(fd, buffer, sizeof(buffer), 0);
         break;
+    case SHOOT:
     case REFILL:
     case ATTACKED:
     case DIE:
