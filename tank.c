@@ -35,7 +35,7 @@ static bool check_tank(tank *tk)
     return true;
 }
 
-bool goforward(tank *tk)
+static bool goforward(tank *tk)
 {
     tank newtk = *tk;
     switch (newtk.dir) {
@@ -61,13 +61,10 @@ bool goforward(tank *tk)
     tk->y = newtk.y;
     print_tank(tk);
     refresh_screen();
-    struct packet pkt = {.kind = TANK, .data = {*tk}};
-    if ((send_packet(client_sock, &pkt)) < 0)
-        perror("goforward\n");
     return true;
 }
 
-bool turn(tank *tk, DIRECTION dir)
+static bool turn(tank *tk, DIRECTION dir)
 {
     if (tk->dir == dir)
         return false;
@@ -75,10 +72,20 @@ bool turn(tank *tk, DIRECTION dir)
     tk->dir = dir;
     print_tank(tk);
     refresh_screen();
-    struct packet pkt = {.kind = TANK, .data.tk = *tk};
-    if ((send_packet(client_sock, &pkt)) < 0)
-        perror("turn\n");
     return true;
+}
+
+bool my_tank_move(DIRECTION dir)
+{
+    bool is_moved;
+    is_moved = turn(&my_tank, dir);
+    is_moved = is_moved | goforward(&my_tank);
+    if (is_moved) {
+        struct packet pkt = {.kind = TANK, .data.tk = my_tank};
+        if ((send_packet(client_sock, &pkt)) < 0)
+            perror("my_tank_move\n");
+    }
+    return is_moved;
 }
 
 void my_tank_attacked(void)

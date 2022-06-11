@@ -92,9 +92,8 @@ typedef struct {
     int8_t id;
 } tank;
 
-bool goforward(tank *);
-bool turn(tank *, DIRECTION);
-void my_tank_attacked();
+bool my_tank_move(DIRECTION);
+void my_tank_attacked(void);
 void my_tank_refill(void);
 
 ///*** bullet ***///

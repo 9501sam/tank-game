@@ -29,7 +29,7 @@ bool del_enemy(int id)
     return true;
 }
 
-static void main_loop(void)
+static void keyboard_loop(void)
 {
     input_t in;
     while (1) {
@@ -39,20 +39,16 @@ static void main_loop(void)
         pthread_mutex_lock(&lock);
         switch (in) {
         case INPUT_LEFT:
-            turn(&my_tank, LEFT);
-            goforward(&my_tank);
+            my_tank_move(LEFT);
             break;
         case INPUT_RIGHT:
-            turn(&my_tank, RIGHT);
-            goforward(&my_tank);
+            my_tank_move(RIGHT);
             break;
         case INPUT_UP:
-            turn(&my_tank, UP);
-            goforward(&my_tank);
+            my_tank_move(UP);
             break;
         case INPUT_DOWN:
-            turn(&my_tank, DOWN);
-            goforward(&my_tank);
+            my_tank_move(DOWN);
             break;
         case INPUT_SHOOT:
             if (my_tank.nblts > 0) {
@@ -139,6 +135,6 @@ void start_game(void)
     init_game();
     init_ui();
     pthread_create(&t1, NULL, recv_thread, NULL);
-    main_loop();
+    keyboard_loop();
     pthread_join(t1, NULL);
 }
