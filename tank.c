@@ -109,6 +109,8 @@ void my_tank_attacked(void)
 
 void my_tank_refill(void)
 {
+    if (my_tank.nblts == NUM_BULLETS)
+        return;
     struct packet pkt = {.kind = REFILL, .data.id = my_tank.id};
     my_tank.nblts = NUM_BULLETS;
     erase_tank_info(&my_tank);

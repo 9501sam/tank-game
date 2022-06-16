@@ -95,6 +95,7 @@ static void *recv_thread(void *arg)
             break;
         case SHOOT:
             id = pkt.data.id;
+            enemies[id].nblts--;
             erase_tank_info(&enemies[id]);
             print_tank_info(&enemies[id]);
             refresh_screen();

@@ -121,24 +121,24 @@ static void handle_new_connect(void)
         .nblts = NUM_BULLETS,
         .id = newid,
     };
-    struct packet newtk_pkg = {
+    struct packet newtk_pkt = {
         .kind = NEW_TANK,
         .data.tk = newtk,
     };
     tanks[newid] = newtk;
     // talk to new player about new tank and 
     // its enemies
-    if (send_packet(newfd, &newtk_pkg) == -1)
+    if (send_packet(newfd, &newtk_pkt) == -1)
         perror("handle_data(): send()");
     for (int i = 0; i <= fdmax; i++) {
         if ((FD_ISSET(i, &master)) && (i != listenfd) && (i != newfd)) {
             int id = fd_to_id[i];
             tank tk = tanks[id];
-            struct packet pkg = {
+            struct packet pkt = {
                 .kind = NEW_TANK,
                 .data.tk = tk,
             }; 
-            if (send_packet(newfd, &pkg) == -1)
+            if (send_packet(newfd, &pkt) == -1)
                 perror("send");
         }
     }
@@ -146,15 +146,15 @@ static void handle_new_connect(void)
     // new player
     for (int i = 0; i <= fdmax; i++) {
         if ((FD_ISSET(i, &master)) && (i != listenfd) && (i != newfd))
-            if (send_packet(i, &newtk_pkg) == -1)
+            if (send_packet(i, &newtk_pkt) == -1)
                 perror("send");
     }
 }
 
 static void handle_data(int fd)
 {
-    struct packet pkg;
-    if ((nbytes = recv_packet(fd, &pkg)) <= 0) {
+    struct packet pkt;
+    if ((nbytes = recv_packet(fd, &pkt)) <= 0) {
         if (nbytes == 0) {                                  // 1. connection closed
             printf("server: socket %d hung up\n", fd);
             player_die(fd);
@@ -167,17 +167,38 @@ static void handle_data(int fd)
         FD_CLR(fd, &master);
         release_tank_id(fd);
     } else {                                                // 3. success got data from client
-                                                            // NEW_TANK, TANK, SHOOT, ATTACKED or DIE
-        if (pkg.kind == DIE) {              // DIE
+                                                            // TANK, SHOOT, ATTACKED or DIE
+        int id;
+        switch (pkt.kind) {
+        case NEW_TANK:
+            perror("NEW_TANK should not be here.\n");
+            break;
+        case TANK:
+            id = pkt.data.tk.id;
+            tanks[id] = pkt.data.tk;
+            break;
+        case SHOOT:
+            id = pkt.data.id;
+            tanks[id].nblts--;
+            break;
+        case REFILL:
+            id = pkt.data.id;
+            tanks[id].nblts = NUM_BULLETS;
+            break;
+        case ATTACKED:
+            id = pkt.data.id;
+            tanks[id].hp--;
+            break;
+        case DIE:
             release_tank_id(fd);
-        } else if (pkg.kind == TANK) {      // TANK
-            int id = pkg.data.tk.id;
-            tanks[id] = pkg.data.tk;
+            break;
+        default:
+            break;
         }
 
         for (int j = 0; j <= fdmax; j++) {
             if ((FD_ISSET(j, &master)) && (j != listenfd) && (j != fd))
-                if (send_packet(j, &pkg) == -1)
+                if (send_packet(j, &pkt) == -1)
                     perror("send");
         }
     }
