@@ -116,7 +116,7 @@ static void handle_new_connect(void)
     tank newtk = {
         .x = x,
         .y = y,
-        .dir = UP,
+        .dir = rand() % NUM_DIR,
         .hp = DEFAULT_HP,
         .nblts = NUM_BULLETS,
         .id = newid,
