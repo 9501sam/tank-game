@@ -23,7 +23,7 @@ socklen_t addrlen;
 int nbytes;
 int num_users = 0;
 
-void close_all_fd(void)
+static void close_all_fd(void)
 {
     for (int i = 0; i <= fdmax; i++)
         if (FD_ISSET(i, &master))

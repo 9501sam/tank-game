@@ -64,7 +64,7 @@ static bool goforward(tank *tk)
     return true;
 }
 
-static bool turn(tank *tk, DIRECTION dir)
+static bool turn(tank *tk, direction_t dir)
 {
     if (tk->dir == dir)
         return false;
@@ -75,7 +75,7 @@ static bool turn(tank *tk, DIRECTION dir)
     return true;
 }
 
-bool my_tank_move(DIRECTION dir)
+bool my_tank_move(direction_t dir)
 {
     bool is_moved;
     is_moved = turn(&my_tank, dir);

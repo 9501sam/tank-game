@@ -25,11 +25,10 @@ static int connect_to_serv(char *serv_addr, int port)
     if (pkt.kind != NEW_TANK)
         err_exit("connect_to_serv\n");
     my_tank = pkt.data.tk;
-    printf("%d\n", sockfd);
     return sockfd;
 }
 
-void deinit_client(void)
+static void deinit_client(void)
 {
     deinit_ui();
     close(client_sock);

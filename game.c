@@ -13,7 +13,7 @@ static void init_game(void)
         enemies[i].id = NOT_USED;
 }
 
-bool add_enemy(tank *tk)
+static bool add_enemy(tank *tk)
 {
     if (enemies[tk->id].id != NOT_USED)
         return false;
@@ -21,7 +21,7 @@ bool add_enemy(tank *tk)
     return true;
 }
 
-bool del_enemy(int id)
+static bool del_enemy(int id)
 {
     if (enemies[id].id == NOT_USED)
         return false;

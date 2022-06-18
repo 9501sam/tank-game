@@ -75,24 +75,24 @@
 #define REFILL_DELAY 2000
 
 // direction
-typedef uint8_t DIRECTION;
-#define LEFT    (DIRECTION) 0
-#define RIGHT   (DIRECTION) 1
-#define UP      (DIRECTION) 2
-#define DOWN    (DIRECTION) 3
-#define NUM_DIR (DIRECTION) 4
+typedef uint8_t direction_t;
+#define LEFT    (direction_t) 0
+#define RIGHT   (direction_t) 1
+#define UP      (direction_t) 2
+#define DOWN    (direction_t) 3
+#define NUM_DIR (direction_t) 4
 
 ///*** tank ***///
 typedef struct {
     uint16_t x;
     uint16_t y;
-    DIRECTION dir;
+    direction_t dir;
     int8_t hp;
     int8_t nblts;
     int8_t id;
 } tank;
 
-bool my_tank_move(DIRECTION);
+bool my_tank_move(direction_t);
 void my_tank_attacked(void);
 void my_tank_refill(void);
 
@@ -100,7 +100,7 @@ void my_tank_refill(void);
 typedef struct {
     int x;
     int y;
-    DIRECTION dir;
+    direction_t dir;
 } bullet;
 
 void *shoot(void *);
@@ -161,8 +161,6 @@ extern pthread_mutex_t  lock;
 
 extern const int tank_pattern[NUM_DIR][TANK_SIZE][TANK_SIZE];
 
-bool add_enemy(tank *);
-bool del_enemy(int);
 void start_game(void);
 
 #endif /* TANKIO_H */
