@@ -95,6 +95,10 @@ void shoot_thread_create(int id)
 
 void my_tank_shoot(void)
 {
+    if (my_tank.nblts <= 0)
+        return;
+    my_tank.nblts--;
+
     struct packet pkt = {
         .kind = SHOOT,
         .data.id = my_tank.id,

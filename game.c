@@ -51,10 +51,7 @@ static void keyboard_loop(void)
             my_tank_move(DOWN);
             break;
         case INPUT_SHOOT:
-            if (my_tank.nblts > 0) {
-                my_tank.nblts--;
-                my_tank_shoot();
-            }
+            my_tank_shoot();
             break;
         case INPUT_REFILL:
             my_tank_refill();
