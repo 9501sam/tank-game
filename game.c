@@ -60,7 +60,7 @@ static void keyboard_loop(void)
             my_tank_refill();
             break;
         case INPUT_QUIT:
-            return;
+            exit(EXIT_SUCCESS);
             break;
         case INPUT_INVALID:
             break;
