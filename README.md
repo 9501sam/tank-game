@@ -12,6 +12,7 @@ sudo apt install make gcc libncurses5-dev -y
 Download the code and compile:
 ```
 git clone https://github.com/9501sam/tank-game.git
+cd tank-game/
 make 
 ```
 
