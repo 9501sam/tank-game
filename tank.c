@@ -56,11 +56,8 @@ static bool goforward(tank *tk)
     }
     if (!check_tank(&newtk))
         return false;
-    erase_tank(tk);
     tk->x = newtk.x;
     tk->y = newtk.y;
-    print_tank(tk);
-    refresh_screen();
     return true;
 }
 
@@ -68,19 +65,21 @@ static bool turn(tank *tk, direction_t dir)
 {
     if (tk->dir == dir)
         return false;
-    erase_tank(tk);
     tk->dir = dir;
-    print_tank(tk);
-    refresh_screen();
     return true;
 }
 
 bool my_tank_move(direction_t dir)
 {
     bool is_moved;
+    tank oldtk = my_tank;
     is_moved = turn(&my_tank, dir);
     is_moved = is_moved | goforward(&my_tank);
     if (is_moved) {
+        erase_tank(&oldtk);
+        print_tank(&my_tank);
+        refresh_screen();
+
         struct packet pkt = {.kind = TANK, .data.tk = my_tank};
         if ((send_packet(client_sock, &pkt)) < 0)
             perror("my_tank_move\n");
