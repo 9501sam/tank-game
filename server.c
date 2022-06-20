@@ -230,7 +230,7 @@ int main(int argc, char **argv)
 
     srand(time(NULL));
 
-    int yes;
+    int yes = 1;
     int rv;
     struct addrinfo hints, *ai, *p;
 
