@@ -24,3 +24,6 @@ cli: client
 
 clean:
 	$(RM) $(BINS) $(OBJS)
+
+image:
+	docker build -t tank-game/server .
