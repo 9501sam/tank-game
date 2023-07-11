@@ -25,3 +25,9 @@ client:
 ```
 ./client <IP address> <port>
 ```
+
+## using docker
+```sh
+make image
+docker run -it tank-game/server
+```
